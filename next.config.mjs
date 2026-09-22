@@ -1,11 +1,11 @@
 /** @type {import('next').NextConfig} */
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://accounts.google.com;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://accounts.google.com https://js.stripe.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   img-src 'self' blob: data: https://res.cloudinary.com https://lh3.googleusercontent.com;
   font-src 'self' https://fonts.gstatic.com;
-  frame-src 'self' https://www.youtube.com https://www.google.com https://accounts.google.com;
+  frame-src 'self' https://www.youtube.com https://www.google.com https://accounts.google.com https://js.stripe.com https://hooks.stripe.com;
   connect-src 'self' https://api.stripe.com;
   object-src 'none';
   base-uri 'self';

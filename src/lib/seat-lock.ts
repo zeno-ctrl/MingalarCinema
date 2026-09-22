@@ -1,9 +1,20 @@
 import { randomUUID } from "node:crypto";
-import { Prisma } from "@prisma/client";
+import { Prisma, type BookingStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { SEAT_HOLD_DURATION_MS, MAX_SEATS_PER_BOOKING } from "@/lib/constants";
 
-const ACTIVE_BOOKING_STATUSES = ["PENDING", "PAID", "CHECKED_IN"] as const;
+// A PENDING booking only blocks a seat until its payment window
+// (Booking.expiresAt) lapses; PAID/CHECKED_IN always block.
+const ACTIVE_BOOKING_WHERE = Prisma.sql`(b.status IN ('PAID', 'CHECKED_IN') OR (b.status = 'PENDING' AND (b."expiresAt" IS NULL OR b."expiresAt" > now())))`;
+
+/** Prisma query-builder equivalent of ACTIVE_BOOKING_WHERE, for callers not using raw SQL. */
+export function activeBookingOr(): Prisma.BookingWhereInput[] {
+  const statuses: BookingStatus[] = ["PAID", "CHECKED_IN"];
+  return [
+    { status: { in: statuses } },
+    { status: "PENDING", OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+  ];
+}
 
 export type HoldResult =
   | { ok: true; expiresAt: Date }
@@ -35,8 +46,6 @@ export async function acquireSeatHold(showtimeId: string, seatId: string, sessio
   const id = randomUUID();
   const expiresAt = new Date(Date.now() + SEAT_HOLD_DURATION_MS);
 
-  const activeStatuses = Prisma.join(ACTIVE_BOOKING_STATUSES.map((s) => Prisma.sql`${s}::"BookingStatus"`));
-
   const rows = await prisma.$queryRaw<{ id: string; expiresAt: Date }[]>`
     INSERT INTO "SeatHold" (id, "showtimeId", "seatId", "sessionId", "expiresAt", "createdAt")
     SELECT ${id}, ${showtimeId}, ${seatId}, ${sessionId}, ${expiresAt}, now()
@@ -45,7 +54,7 @@ export async function acquireSeatHold(showtimeId: string, seatId: string, sessio
       JOIN "Booking" b ON b.id = bs."bookingId"
       WHERE bs."seatId" = ${seatId}
         AND b."showtimeId" = ${showtimeId}
-        AND b.status IN (${activeStatuses})
+        AND ${ACTIVE_BOOKING_WHERE}
     )
     ON CONFLICT ("showtimeId", "seatId")
     DO UPDATE SET "sessionId" = EXCLUDED."sessionId", "expiresAt" = EXCLUDED."expiresAt"
@@ -77,7 +86,7 @@ export async function getShowtimeSeatStatuses(showtimeId: string, sessionId: str
 
   const [bookedSeatIds, holds] = await Promise.all([
     prisma.bookingSeat.findMany({
-      where: { booking: { showtimeId, status: { in: [...ACTIVE_BOOKING_STATUSES] } } },
+      where: { booking: { showtimeId, OR: activeBookingOr() } },
       select: { seatId: true },
     }),
     prisma.seatHold.findMany({ where: { showtimeId, expiresAt: { gt: new Date() } } }),

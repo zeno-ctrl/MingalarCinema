@@ -349,6 +349,7 @@ model SeatHold {
 enum PaymentProviderType {
   STRIPE
   KBZPAY
+  MOCK
 }
 
 enum PaymentStatus {

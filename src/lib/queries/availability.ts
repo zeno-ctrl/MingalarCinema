@@ -1,12 +1,11 @@
 import { prisma } from "@/lib/db";
-
-const ACTIVE_BOOKING_STATUSES = ["PENDING", "PAID", "CHECKED_IN"] as const;
+import { activeBookingOr } from "@/lib/seat-lock";
 
 export async function getShowtimeAvailability(showtimeId: string, hallId: string) {
   const [totalSeats, bookedSeats, activeHolds] = await Promise.all([
     prisma.seat.count({ where: { hallId, isDisabled: false } }),
     prisma.bookingSeat.count({
-      where: { booking: { showtimeId, status: { in: [...ACTIVE_BOOKING_STATUSES] } } },
+      where: { booking: { showtimeId, OR: activeBookingOr() } },
     }),
     prisma.seatHold.count({ where: { showtimeId, expiresAt: { gt: new Date() } } }),
   ]);
