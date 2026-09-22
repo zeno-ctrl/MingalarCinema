@@ -72,3 +72,10 @@ export function clientIp(req: Request): string {
   const forwarded = req.headers.get("x-forwarded-for");
   return forwarded?.split(",")[0]?.trim() ?? "unknown";
 }
+
+/** Same idea as clientIp(), but for contexts (like NextAuth's authorize())
+ * that hand over a plain headers record instead of a Headers instance. */
+export function clientIpFromHeaderRecord(headers: Record<string, string> | undefined): string {
+  const forwarded = headers?.["x-forwarded-for"];
+  return forwarded?.split(",")[0]?.trim() ?? "unknown";
+}

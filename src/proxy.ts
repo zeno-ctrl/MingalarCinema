@@ -3,9 +3,34 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const ADMIN_ROLES = ["ADMIN", "SUPER_ADMIN"];
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+/**
+ * Defense-in-depth CSRF check for our own JSON API routes. The session
+ * cookie is already SameSite=Lax (NextAuth's default), which stops it being
+ * sent on cross-site POSTs in every modern browser — this Origin check
+ * covers the same ground explicitly and doesn't depend on cookie behavior,
+ * so it still holds even if a future change ever relaxed SameSite. Skips
+ * /api/auth/** (NextAuth manages its own CSRF token, and Google's redirect
+ * back to us is a legitimate cross-origin POST) and /api/webhooks/** (real
+ * payment providers call those from their own servers; those routes are
+ * protected by signature verification instead, not same-origin-ness).
+ */
+function failsOriginCheck(req: NextRequest): boolean {
+  if (!MUTATING_METHODS.has(req.method)) return false;
+  if (req.nextUrl.pathname.startsWith("/api/auth/") || req.nextUrl.pathname.startsWith("/api/webhooks/")) return false;
+
+  const origin = req.headers.get("origin");
+  if (!origin) return false; // same-origin requests from same-site <form>/fetch don't always send Origin; SameSite cookie is the backstop here
+  return origin !== req.nextUrl.origin;
+}
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  if (pathname.startsWith("/api/") && failsOriginCheck(req)) {
+    return NextResponse.json({ error: "cross-origin request rejected" }, { status: 403 });
+  }
 
   const isAdminPage = pathname.startsWith("/admin");
   const isAdminApi = pathname.startsWith("/api/admin");
@@ -53,5 +78,11 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/profile/:path*", "/my-tickets/:path*", "/checkout/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/api/:path*",
+    "/profile/:path*",
+    "/my-tickets/:path*",
+    "/checkout/:path*",
+  ],
 };

@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 import { normalizeEmail } from "@/lib/utils";
 import { verifyTotp } from "@/lib/twofactor";
 import { decryptSecret } from "@/lib/crypto";
+import { rateLimit, RATE_LIMITS, clientIpFromHeaderRecord } from "@/lib/rate-limit";
 
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCK_DURATION_MS = 15 * 60 * 1000;
@@ -40,10 +41,20 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
         otp: { label: "One-time code", type: "text" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error(INVALID_CREDENTIALS);
         }
+
+        // IP-based throttle in addition to the per-account lockout below —
+        // this is what actually slows down credential stuffing across many
+        // different email addresses from one source.
+        const ip = clientIpFromHeaderRecord(req.headers);
+        const { success } = await rateLimit(`login:${ip}`, RATE_LIMITS.login);
+        if (!success) {
+          throw new Error("ACCOUNT_LOCKED");
+        }
+
         const email = normalizeEmail(credentials.email);
         const user = await prisma.user.findUnique({ where: { email } });
 
@@ -75,6 +86,15 @@ export const authOptions: NextAuthOptions = {
           if (!credentials.otp) {
             throw new Error("2FA_REQUIRED");
           }
+
+          // A 6-digit TOTP has only 10^6 possibilities; without a per-user
+          // throttle here it would be brute-forceable within its 30s
+          // validity window despite the account-level password lockout.
+          const otpCheck = await rateLimit(`otp:${user.id}`, RATE_LIMITS.otp);
+          if (!otpCheck.success) {
+            throw new Error("ACCOUNT_LOCKED");
+          }
+
           const secret = decryptSecret(user.twoFactorSecret!);
           const otpValid = verifyTotp(credentials.otp, secret);
           if (!otpValid) {
