@@ -1,0 +1,108 @@
+{
+  "common": {
+    "bookNow": "Book Now",
+    "continue": "Continue",
+    "back": "Back",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "loading": "Loading...",
+    "seeAll": "See All",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "close": "Close",
+    "logout": "Log out",
+    "login": "Log in",
+    "signup": "Sign up"
+  },
+  "nav": {
+    "home": "Home",
+    "movies": "Movies",
+    "cinemas": "Cinemas",
+    "myTickets": "My Tickets",
+    "profile": "Profile"
+  },
+  "home": {
+    "nowShowing": "Now Showing",
+    "comingSoon": "Coming Soon",
+    "newsAndPromos": "News & Promotions"
+  },
+  "movie": {
+    "synopsis": "Synopsis",
+    "cast": "Cast",
+    "director": "Director",
+    "genre": "Genre",
+    "rating": "Rating",
+    "runtime": "Runtime",
+    "language": "Language",
+    "subtitles": "Subtitles",
+    "format": "Format",
+    "showtimes": "Showtimes",
+    "trailer": "Trailer",
+    "minutes": "min"
+  },
+  "branch": {
+    "openingHours": "Opening Hours",
+    "facilities": "Facilities",
+    "getDirections": "Get Directions",
+    "call": "Call",
+    "halls": "Halls"
+  },
+  "booking": {
+    "step1": "Movie",
+    "step2": "Showtime",
+    "step3": "Seats",
+    "step4": "Payment",
+    "selectBranchDate": "Select branch, date & time",
+    "selectSeats": "Select your seats",
+    "available": "Available",
+    "selected": "Selected",
+    "taken": "Taken",
+    "vip": "VIP",
+    "couple": "Couple",
+    "standard": "Standard",
+    "maxSeats": "You can select up to {max} seats",
+    "holdExpiring": "Your seats are held for",
+    "holdExpired": "Your seat hold has expired. Please select again.",
+    "orderSummary": "Order Summary",
+    "promoCode": "Promo code",
+    "applyPromo": "Apply",
+    "payWithCard": "Pay with Card",
+    "payWithKbz": "Pay with KBZPay",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "discount": "Discount"
+  },
+  "confirmation": {
+    "title": "Booking Confirmed",
+    "reference": "Booking Reference",
+    "downloadTicket": "Download Ticket",
+    "showAtCinema": "Show this QR code at the cinema"
+  },
+  "auth": {
+    "loginTitle": "Log in to continue",
+    "signupTitle": "Create your account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full name",
+    "phone": "Phone (optional)",
+    "continueWithGoogle": "Continue with Google",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "verifyEmailSent": "We've sent a verification link to your email.",
+    "resetPasswordSent": "If that email exists, a reset link has been sent."
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "seatTaken": "Sorry, one or more selected seats were just taken. Please choose again.",
+    "holdExpired": "Your seat hold expired. Please select your seats again.",
+    "invalidCredentials": "Incorrect email or password.",
+    "accountLocked": "Too many failed attempts. Please try again in a few minutes.",
+    "unauthorized": "You need to log in to do that.",
+    "forbidden": "You don't have permission to do that."
+  }
+}

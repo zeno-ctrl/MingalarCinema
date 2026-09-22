@@ -1,0 +1,453 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =========================================================================
+// AUTH
+// =========================================================================
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  name                String
+  email               String    @unique
+  emailVerified       DateTime?
+  phone               String?
+  passwordHash        String?
+  image               String?
+  role                Role      @default(USER)
+  isDisabled          Boolean   @default(false)
+  language            String    @default("en")
+
+  // 2FA (required for ADMIN / SUPER_ADMIN)
+  twoFactorSecret     String?
+  twoFactorEnabled    Boolean   @default(false)
+  twoFactorRecoveryCodes String[] @default([])
+
+  // login throttling
+  failedLoginCount    Int       @default(0)
+  lockedUntil         DateTime?
+
+  accounts            Account[]
+  sessions            Session[]
+  bookings            Booking[]
+  auditLogs           AuditLog[]
+  invitesSent         AdminInvite[] @relation("InviteSender")
+  promoCodeUses       PromoCodeUse[]
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  type       VerificationTokenType @default(EMAIL_VERIFY)
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@index([identifier, type])
+}
+
+enum VerificationTokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
+model AdminInvite {
+  id          String    @id @default(cuid())
+  email       String
+  role        Role      @default(ADMIN)
+  token       String    @unique
+  invitedById String
+  invitedBy   User      @relation("InviteSender", fields: [invitedById], references: [id])
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([email])
+}
+
+// =========================================================================
+// CINEMA STRUCTURE
+// =========================================================================
+
+model Branch {
+  id           String   @id @default(cuid())
+  nameEn       String
+  nameMm       String
+  slug         String   @unique
+  addressEn    String
+  addressMm    String
+  phone        String
+  latitude     Float?
+  longitude    Float?
+  openingHours String
+  facilities   String[] @default([])
+  photos       String[] @default([])
+  isActive     Boolean  @default(true)
+
+  halls        Hall[]
+  movies       MovieBranch[]
+  showtimes    Showtime[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum SeatType {
+  STANDARD
+  VIP
+  COUPLE
+}
+
+model Hall {
+  id        String   @id @default(cuid())
+  branchId  String
+  branch    Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  name      String
+  rows      Int
+  columns   Int
+  seats     Seat[]
+  showtimes Showtime[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([branchId])
+}
+
+model Seat {
+  id           String   @id @default(cuid())
+  hallId       String
+  hall         Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  row          String
+  column       Int
+  label        String
+  type         SeatType @default(STANDARD)
+  isDisabled   Boolean  @default(false)
+  isAisleAfter Boolean  @default(false)
+
+  bookingSeats BookingSeat[]
+  seatHolds    SeatHold[]
+
+  @@unique([hallId, row, column])
+  @@index([hallId])
+}
+
+// =========================================================================
+// MOVIES
+// =========================================================================
+
+enum MovieStatus {
+  COMING_SOON
+  NOW_SHOWING
+  ENDED
+}
+
+enum MovieRating {
+  G
+  PG
+  PG13
+  R
+}
+
+enum MovieFormat {
+  D2
+  D3
+  PREMIUM
+}
+
+model Movie {
+  id           String      @id @default(cuid())
+  titleEn      String
+  titleMm      String
+  slug         String      @unique
+  synopsisEn   String
+  synopsisMm   String
+  cast         String[]    @default([])
+  director     String
+  genre        String[]    @default([])
+  rating       MovieRating
+  runtimeMin   Int
+  language     String
+  subtitles    String?
+  formats      MovieFormat[] @default([D2])
+  posterUrl    String
+  bannerUrl    String?
+  trailerUrl   String?
+  releaseDate  DateTime
+  status       MovieStatus @default(COMING_SOON)
+  featured     Boolean     @default(false)
+  allBranches  Boolean     @default(true)
+
+  branches     MovieBranch[]
+  showtimes    Showtime[]
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([status])
+  @@index([slug])
+}
+
+model MovieBranch {
+  id       String @id @default(cuid())
+  movieId  String
+  movie    Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@unique([movieId, branchId])
+  @@index([branchId])
+}
+
+// =========================================================================
+// SHOWTIMES & BOOKINGS
+// =========================================================================
+
+model Showtime {
+  id          String      @id @default(cuid())
+  movieId     String
+  movie       Movie       @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  branchId    String
+  branch      Branch      @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  hallId      String
+  hall        Hall        @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  startsAt    DateTime
+  endsAt      DateTime
+  format      MovieFormat @default(D2)
+  priceStandard Int // in kyat, minor unit = 1 (no decimals for MMK)
+  priceVip      Int
+  priceCouple   Int
+
+  bookings    Booking[]
+  seatHolds   SeatHold[]
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([movieId])
+  @@index([branchId])
+  @@index([hallId, startsAt])
+}
+
+enum BookingStatus {
+  PENDING
+  PAID
+  CHECKED_IN
+  EXPIRED
+  CANCELLED
+  REFUNDED
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  reference     String        @unique
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  showtimeId    String
+  showtime      Showtime      @relation(fields: [showtimeId], references: [id])
+  status        BookingStatus @default(PENDING)
+  subtotal      Int
+  discount      Int           @default(0)
+  total         Int
+  promoCodeId   String?
+  promoCode     PromoCode?    @relation(fields: [promoCodeId], references: [id])
+  contactEmail  String
+  contactPhone  String?
+  qrToken       String        @unique @default(cuid())
+  expiresAt     DateTime?
+  checkedInAt   DateTime?
+
+  seats         BookingSeat[]
+  payments      Payment[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([showtimeId])
+  @@index([reference])
+}
+
+model BookingSeat {
+  id        String  @id @default(cuid())
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seatId    String
+  seat      Seat    @relation(fields: [seatId], references: [id])
+  price     Int
+
+  @@unique([bookingId, seatId])
+  @@index([seatId])
+}
+
+// Row-level seat lock for the duration of checkout (10 min hold)
+model SeatHold {
+  id         String   @id @default(cuid())
+  showtimeId String
+  showtime   Showtime @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
+  seatId     String
+  seat       Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  sessionId  String // anonymous-safe holder key (user id or browser session id)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@unique([showtimeId, seatId])
+  @@index([expiresAt])
+  @@index([sessionId])
+}
+
+// =========================================================================
+// PAYMENTS
+// =========================================================================
+
+enum PaymentProviderType {
+  STRIPE
+  KBZPAY
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id                String              @id @default(cuid())
+  bookingId         String
+  booking           Booking             @relation(fields: [bookingId], references: [id])
+  provider          PaymentProviderType
+  providerRef       String              @unique // provider's payment intent / txn id
+  status            PaymentStatus       @default(PENDING)
+  amount            Int
+  currency          String              @default("MMK")
+  rawPayload        Json?
+  idempotencyKey    String              @unique
+
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([bookingId])
+}
+
+// =========================================================================
+// PROMOTIONS & NEWS
+// =========================================================================
+
+model Promotion {
+  id        String   @id @default(cuid())
+  titleEn   String
+  titleMm   String
+  bodyEn    String
+  bodyMm    String
+  imageUrl  String?
+  startDate DateTime
+  endDate   DateTime
+  published Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model PromoCode {
+  id           String       @id @default(cuid())
+  code         String       @unique
+  discountType DiscountType
+  amount       Int // percentage (0-100) or fixed kyat amount
+  minSpend     Int          @default(0)
+  usageLimit   Int?
+  usedCount    Int          @default(0)
+  expiresAt    DateTime?
+  isActive     Boolean      @default(true)
+
+  bookings     Booking[]
+  uses         PromoCodeUse[]
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model PromoCodeUse {
+  id          String    @id @default(cuid())
+  promoCodeId String
+  promoCode   PromoCode @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  usedAt      DateTime  @default(now())
+
+  @@unique([promoCodeId, userId])
+}
+
+// =========================================================================
+// SETTINGS & AUDIT
+// =========================================================================
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actor      User     @relation(fields: [actorId], references: [id])
+  action     String // e.g. "movie.create", "showtime.delete"
+  entityType String
+  entityId   String
+  before     Json?
+  after      Json?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+}
