@@ -53,6 +53,12 @@ export async function requireApiUser() {
  * full NextAuth session pipeline (including our jwt() callback's live DB
  * check), so calling this from every admin page closes that gap.
  */
+export async function requirePageUser(callbackUrl: string) {
+  const user = await getCurrentUser();
+  if (!user) redirect(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+  return user;
+}
+
 export async function requirePageRole(minimum: Role) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?callbackUrl=/admin");
