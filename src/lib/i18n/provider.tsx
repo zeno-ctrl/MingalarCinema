@@ -17,10 +17,9 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 
 function resolve(dict: Dictionary, path: string): string {
   const parts = path.split(".");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let node: any = dict;
+  let node: unknown = dict;
   for (const part of parts) {
-    node = node?.[part];
+    node = node && typeof node === "object" ? (node as Record<string, unknown>)[part] : undefined;
   }
   return typeof node === "string" ? node : path;
 }

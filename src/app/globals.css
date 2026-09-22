@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-orange: #f0522a;
+  --brand-red: #d7372b;
+  --brand-crimson: #be1e2d;
+  --brand-gradient: linear-gradient(160deg, #f0522a 0%, #be1e2d 100%);
+
+  --bg: #ffffff;
+  --bg-soft: #f7f7f8;
+  --text: #1a1a1a;
+  --text-muted: #6b6b70;
+
+  --success: #1f9d55;
+  --warning: #f5a524;
+  --error: #be1e2d;
+}
+
+.dark {
+  --bg: #121212;
+  --bg-soft: #1c1c1e;
+  --text: #f2f2f2;
+  --text-muted: #a3a3a8;
+}
+
+* {
+  border-color: rgb(0 0 0 / 0.08);
+}
+.dark * {
+  border-color: rgb(255 255 255 / 0.1);
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.font-mm-support {
+  font-family: var(--font-noto-mm), var(--font-inter), sans-serif;
+}
+
+::selection {
+  background-color: var(--brand-orange);
+  color: white;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.06) 25%, rgb(0 0 0 / 0.12) 37%, rgb(0 0 0 / 0.06) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+.dark .skeleton {
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.06) 25%, rgb(255 255 255 / 0.12) 37%, rgb(255 255 255 / 0.06) 63%);
+  background-size: 400% 100%;
+}
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+/* Focus visibility for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--brand-red);
+  outline-offset: 2px;
+}

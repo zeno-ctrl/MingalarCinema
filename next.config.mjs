@@ -28,6 +28,7 @@ const securityHeaders = [
 
 const nextConfig = {
   reactStrictMode: true,
+  agentRules: false,
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },

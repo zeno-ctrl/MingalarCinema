@@ -28,6 +28,8 @@ model User {
   role                Role      @default(USER)
   isDisabled          Boolean   @default(false)
   language            String    @default("en")
+  // Bumped to invalidate all previously issued JWT sessions ("log out of all devices")
+  sessionVersion      Int       @default(0)
 
   // 2FA (required for ADMIN / SUPER_ADMIN)
   twoFactorSecret     String?
