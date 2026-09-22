@@ -1,6 +1,13 @@
 import { prisma } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 
+/** Round-trips through JSON so Dates/etc. in Prisma model objects become
+ * plain JSON-safe values before being stored in the Json column. */
+function toJson(value: unknown): Prisma.InputJsonValue | undefined {
+  if (value == null) return undefined;
+  return JSON.parse(JSON.stringify(value));
+}
+
 export async function recordAudit({
   actorId,
   action,
@@ -13,8 +20,8 @@ export async function recordAudit({
   action: string;
   entityType: string;
   entityId: string;
-  before?: Prisma.InputJsonValue | null;
-  after?: Prisma.InputJsonValue | null;
+  before?: unknown;
+  after?: unknown;
 }) {
   await prisma.auditLog.create({
     data: {
@@ -22,8 +29,8 @@ export async function recordAudit({
       action,
       entityType,
       entityId,
-      before: before ?? undefined,
-      after: after ?? undefined,
+      before: toJson(before),
+      after: toJson(after),
     },
   });
 }
