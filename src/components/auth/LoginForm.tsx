@@ -96,7 +96,7 @@ export function LoginForm() {
       {needsOtp && (
         <div>
           <label className="mb-1 block text-sm text-text-muted" htmlFor="otp">
-            Authenticator code
+            {t("auth.otpLabel")}
           </label>
           <Input
             id="otp"

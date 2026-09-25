@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useI18n } from "@/lib/i18n/provider";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
 export default function ForgotPasswordPage() {
   const { t } = useI18n();
@@ -25,6 +26,9 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md items-center px-4 py-10">
+      <div className="absolute right-4 top-4">
+        <LanguageSwitcher />
+      </div>
       <div className="w-full rounded-card bg-bg p-6 shadow-card sm:p-8">
         {done ? (
           <div className="space-y-4 text-center">

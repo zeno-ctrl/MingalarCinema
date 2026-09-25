@@ -95,7 +95,20 @@
     "noAccount": "Don't have an account?",
     "haveAccount": "Already have an account?",
     "verifyEmailSent": "We've sent a verification link to your email.",
-    "resetPasswordSent": "If that email exists, a reset link has been sent."
+    "resetPasswordSent": "If that email exists, a reset link has been sent.",
+    "otpLabel": "Authenticator code",
+    "passwordRules": "At least 8 characters, with an uppercase letter, a lowercase letter, and a number.",
+    "setNewPassword": "Set a new password",
+    "invalidResetLink": "This reset link is invalid.",
+    "passwordUpdatedRedirecting": "Password updated. Redirecting to login…"
+  },
+  "profile": {
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "updatePassword": "Update password",
+    "signInWithGoogleNoPassword": "You sign in with Google. There’s no password to change.",
+    "passwordUpdatedSigningOut": "Password updated. Signing you out everywhere…",
+    "signOutEverywhereNote": "You’ll be signed out everywhere after changing your password."
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

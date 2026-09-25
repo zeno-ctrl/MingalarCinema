@@ -94,9 +94,7 @@ export function SignupForm() {
         required
         minLength={8}
       />
-      <p className="text-xs text-text-muted">
-        At least 8 characters, with an uppercase letter, a lowercase letter, and a number.
-      </p>
+      <p className="text-xs text-text-muted">{t("auth.passwordRules")}</p>
 
       <Button type="submit" className="w-full" loading={loading}>
         {t("common.signup")}

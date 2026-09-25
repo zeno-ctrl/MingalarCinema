@@ -4,8 +4,10 @@ import { useState } from "react";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { useI18n } from "@/lib/i18n/provider";
 
 export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
+  const { t } = useI18n();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +15,7 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
   const [done, setDone] = useState(false);
 
   if (!hasPassword) {
-    return <p className="text-sm text-text-muted">You sign in with Google. There&rsquo;s no password to change.</p>;
+    return <p className="text-sm text-text-muted">{t("profile.signInWithGoogleNoPassword")}</p>;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -33,7 +35,7 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
           ? data.error
           : Object.values(data.error?.fieldErrors ?? {})
               .flat()
-              .join(" ") || "Something went wrong.";
+              .join(" ") || t("errors.generic");
       setError(message);
       return;
     }
@@ -42,7 +44,7 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
   }
 
   if (done) {
-    return <p className="text-success">Password updated. Signing you out everywhere&hellip;</p>;
+    return <p className="text-success">{t("profile.passwordUpdatedSigningOut")}</p>;
   }
 
   return (
@@ -54,23 +56,23 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
       )}
       <Input
         type="password"
-        placeholder="Current password"
+        placeholder={t("profile.currentPassword")}
         value={currentPassword}
         onChange={(e) => setCurrentPassword(e.target.value)}
         required
       />
       <Input
         type="password"
-        placeholder="New password"
+        placeholder={t("profile.newPassword")}
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}
         required
         minLength={8}
       />
       <Button type="submit" loading={loading}>
-        Update password
+        {t("profile.updatePassword")}
       </Button>
-      <p className="text-xs text-text-muted">You&rsquo;ll be signed out everywhere after changing your password.</p>
+      <p className="text-xs text-text-muted">{t("profile.signOutEverywhereNote")}</p>
     </form>
   );
 }
