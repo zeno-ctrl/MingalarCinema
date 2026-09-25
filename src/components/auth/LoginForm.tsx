@@ -134,8 +134,8 @@ export function LoginForm() {
         className="w-full items-center gap-2"
         onClick={() => signIn("google", { callbackUrl })}
       >
-        <GoogleIcon />
         {t("auth.continueWithGoogle")}
+        <GoogleIcon />
       </Button>
 
       <Button
@@ -144,8 +144,8 @@ export function LoginForm() {
         className="w-full items-center gap-2"
         onClick={() => signIn("apple", { callbackUrl })}
       >
-        <AppleIcon />
         {t("auth.continueWithApple")}
+        <AppleIcon />
       </Button>
 
       <p className="text-center text-sm text-text-muted">

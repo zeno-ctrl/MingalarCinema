@@ -114,8 +114,8 @@ export function SignupForm() {
         className="w-full"
         onClick={() => signIn("google", { callbackUrl })}
       >
-        <GoogleIcon />
         {t("auth.continueWithGoogle")}
+        <GoogleIcon />
       </Button>
 
       <Button
@@ -124,8 +124,8 @@ export function SignupForm() {
         className="w-full"
         onClick={() => signIn("apple", { callbackUrl })}
       >
-        <AppleIcon />
         {t("auth.continueWithApple")}
+        <AppleIcon />
       </Button>
 
       <p className="text-center text-sm text-text-muted">
