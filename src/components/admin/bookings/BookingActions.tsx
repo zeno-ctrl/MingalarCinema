@@ -28,7 +28,7 @@ export function BookingActions({ bookingId, status }: { bookingId: string; statu
   async function handleRefund() {
     const ok = await confirm({
       title: "Refund this booking?",
-      description: "This marks the payment as refunded in CineTown's records.",
+      description: "This marks the payment as refunded in Mingalar Cinema's records.",
       danger: true,
       confirmLabel: "Refund",
     });

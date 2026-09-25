@@ -37,7 +37,7 @@ export default function AcceptInvitePage({ params }: { params: Promise<{ token: 
         <form onSubmit={handleSubmit} className="space-y-4">
           <h1 className="text-2xl font-semibold">Accept admin invitation</h1>
           <p className="text-sm text-text-muted">
-            Set your name and a password to activate your CineTown admin account. You&rsquo;ll be required to set up
+            Set your name and a password to activate your Mingalar Cinema admin account. You&rsquo;ll be required to set up
             two-factor authentication on first login.
           </p>
           {error && (

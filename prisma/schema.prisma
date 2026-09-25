@@ -13,42 +13,43 @@ datasource db {
 
 enum Role {
   USER
+  CASHIER
   ADMIN
   SUPER_ADMIN
 }
 
 model User {
-  id                  String    @id @default(cuid())
-  name                String
-  email               String    @unique
-  emailVerified       DateTime?
-  phone               String?
-  passwordHash        String?
-  image               String?
-  role                Role      @default(USER)
-  isDisabled          Boolean   @default(false)
-  language            String    @default("en")
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  emailVerified  DateTime?
+  phone          String?
+  passwordHash   String?
+  image          String?
+  role           Role      @default(USER)
+  isDisabled     Boolean   @default(false)
+  language       String    @default("en")
   // Bumped to invalidate all previously issued JWT sessions ("log out of all devices")
-  sessionVersion      Int       @default(0)
+  sessionVersion Int       @default(0)
 
   // 2FA (required for ADMIN / SUPER_ADMIN)
-  twoFactorSecret     String?
-  twoFactorEnabled    Boolean   @default(false)
+  twoFactorSecret        String?
+  twoFactorEnabled       Boolean  @default(false)
   twoFactorRecoveryCodes String[] @default([])
 
   // login throttling
-  failedLoginCount    Int       @default(0)
-  lockedUntil         DateTime?
+  failedLoginCount Int       @default(0)
+  lockedUntil      DateTime?
 
-  accounts            Account[]
-  sessions            Session[]
-  bookings            Booking[]
-  auditLogs           AuditLog[]
-  invitesSent         AdminInvite[] @relation("InviteSender")
-  promoCodeUses       PromoCodeUse[]
+  accounts      Account[]
+  sessions      Session[]
+  bookings      Booking[]
+  auditLogs     AuditLog[]
+  invitesSent   AdminInvite[]  @relation("InviteSender")
+  promoCodeUses PromoCodeUse[]
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([email])
 }
@@ -83,9 +84,9 @@ model Session {
 }
 
 model VerificationToken {
-  id         String   @id @default(cuid())
+  id         String                @id @default(cuid())
   identifier String
-  token      String   @unique
+  token      String                @unique
   type       VerificationTokenType @default(EMAIL_VERIFY)
   expires    DateTime
 
@@ -131,12 +132,12 @@ model Branch {
   photos       String[] @default([])
   isActive     Boolean  @default(true)
 
-  halls        Hall[]
-  movies       MovieBranch[]
-  showtimes    Showtime[]
+  halls     Hall[]
+  movies    MovieBranch[]
+  showtimes Showtime[]
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum SeatType {
@@ -146,16 +147,16 @@ enum SeatType {
 }
 
 model Hall {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   branchId  String
-  branch    Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branch    Branch     @relation(fields: [branchId], references: [id], onDelete: Cascade)
   name      String
   rows      Int
   columns   Int
   seats     Seat[]
   showtimes Showtime[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   @@index([branchId])
 }
@@ -202,33 +203,33 @@ enum MovieFormat {
 }
 
 model Movie {
-  id           String      @id @default(cuid())
-  titleEn      String
-  titleMm      String
-  slug         String      @unique
-  synopsisEn   String
-  synopsisMm   String
-  cast         String[]    @default([])
-  director     String
-  genre        String[]    @default([])
-  rating       MovieRating
-  runtimeMin   Int
-  language     String
-  subtitles    String?
-  formats      MovieFormat[] @default([D2])
-  posterUrl    String
-  bannerUrl    String?
-  trailerUrl   String?
-  releaseDate  DateTime
-  status       MovieStatus @default(COMING_SOON)
-  featured     Boolean     @default(false)
-  allBranches  Boolean     @default(true)
+  id          String        @id @default(cuid())
+  titleEn     String
+  titleMm     String
+  slug        String        @unique
+  synopsisEn  String
+  synopsisMm  String
+  cast        String[]      @default([])
+  director    String
+  genre       String[]      @default([])
+  rating      MovieRating
+  runtimeMin  Int
+  language    String
+  subtitles   String?
+  formats     MovieFormat[] @default([D2])
+  posterUrl   String
+  bannerUrl   String?
+  trailerUrl  String?
+  releaseDate DateTime
+  status      MovieStatus   @default(COMING_SOON)
+  featured    Boolean       @default(false)
+  allBranches Boolean       @default(true)
 
-  branches     MovieBranch[]
-  showtimes    Showtime[]
+  branches  MovieBranch[]
+  showtimes Showtime[]
 
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
   @@index([slug])
@@ -250,25 +251,25 @@ model MovieBranch {
 // =========================================================================
 
 model Showtime {
-  id          String      @id @default(cuid())
-  movieId     String
-  movie       Movie       @relation(fields: [movieId], references: [id], onDelete: Cascade)
-  branchId    String
-  branch      Branch      @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  hallId      String
-  hall        Hall        @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  startsAt    DateTime
-  endsAt      DateTime
-  format      MovieFormat @default(D2)
+  id            String      @id @default(cuid())
+  movieId       String
+  movie         Movie       @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  branchId      String
+  branch        Branch      @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  hallId        String
+  hall          Hall        @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  startsAt      DateTime
+  endsAt        DateTime
+  format        MovieFormat @default(D2)
   priceStandard Int // in kyat, minor unit = 1 (no decimals for MMK)
   priceVip      Int
   priceCouple   Int
 
-  bookings    Booking[]
-  seatHolds   SeatHold[]
+  bookings  Booking[]
+  seatHolds SeatHold[]
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([movieId])
   @@index([branchId])
@@ -285,29 +286,31 @@ enum BookingStatus {
 }
 
 model Booking {
-  id            String        @id @default(cuid())
-  reference     String        @unique
-  userId        String
-  user          User          @relation(fields: [userId], references: [id])
-  showtimeId    String
-  showtime      Showtime      @relation(fields: [showtimeId], references: [id])
-  status        BookingStatus @default(PENDING)
-  subtotal      Int
-  discount      Int           @default(0)
-  total         Int
-  promoCodeId   String?
-  promoCode     PromoCode?    @relation(fields: [promoCodeId], references: [id])
-  contactEmail  String
-  contactPhone  String?
-  qrToken       String        @unique @default(cuid())
-  expiresAt     DateTime?
-  checkedInAt   DateTime?
+  id           String        @id @default(cuid())
+  reference    String        @unique
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  showtimeId   String
+  showtime     Showtime      @relation(fields: [showtimeId], references: [id])
+  status       BookingStatus @default(PENDING)
+  subtotal     Int
+  discount     Int           @default(0)
+  total        Int
+  promoCodeId  String?
+  promoCode    PromoCode?    @relation(fields: [promoCodeId], references: [id])
+  contactEmail String
+  contactPhone String?
+  // Only set for staff-entered cash sales (no customer account involved).
+  guestName    String?
+  qrToken      String        @unique @default(cuid())
+  expiresAt    DateTime?
+  checkedInAt  DateTime?
 
-  seats         BookingSeat[]
-  payments      Payment[]
+  seats    BookingSeat[]
+  payments Payment[]
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([showtimeId])
@@ -350,6 +353,7 @@ enum PaymentProviderType {
   STRIPE
   KBZPAY
   MOCK
+  CASH
 }
 
 enum PaymentStatus {
@@ -360,19 +364,19 @@ enum PaymentStatus {
 }
 
 model Payment {
-  id                String              @id @default(cuid())
-  bookingId         String
-  booking           Booking             @relation(fields: [bookingId], references: [id])
-  provider          PaymentProviderType
-  providerRef       String              @unique // provider's payment intent / txn id
-  status            PaymentStatus       @default(PENDING)
-  amount            Int
-  currency          String              @default("MMK")
-  rawPayload        Json?
-  idempotencyKey    String              @unique
+  id             String              @id @default(cuid())
+  bookingId      String
+  booking        Booking             @relation(fields: [bookingId], references: [id])
+  provider       PaymentProviderType
+  providerRef    String              @unique // provider's payment intent / txn id
+  status         PaymentStatus       @default(PENDING)
+  amount         Int
+  currency       String              @default("MMK")
+  rawPayload     Json?
+  idempotencyKey String              @unique
 
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([bookingId])
 }
@@ -412,11 +416,11 @@ model PromoCode {
   expiresAt    DateTime?
   isActive     Boolean      @default(true)
 
-  bookings     Booking[]
-  uses         PromoCodeUse[]
+  bookings Booking[]
+  uses     PromoCodeUse[]
 
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PromoCodeUse {

@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import AppleProvider from "next-auth/providers/apple";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import argon2 from "argon2";
 import { prisma } from "@/lib/db";
@@ -32,6 +33,15 @@ export const authOptions: NextAuthOptions = {
       // Safe: Google verifies the email address before it reaches us, so
       // linking to an existing email/password account on first Google
       // sign-in does not let an attacker take over an unverified email.
+      allowDangerousEmailAccountLinking: true,
+    }),
+    AppleProvider({
+      clientId: process.env.APPLE_ID || "",
+      // Apple's "client secret" is a JWT you generate yourself (Team ID, Key
+      // ID, and a .p8 private key), not a static value like Google's — see
+      // APPLE_SECRET in .env.example for how to create it.
+      clientSecret: process.env.APPLE_SECRET || "",
+      // Same reasoning as Google: Apple verifies the email before it reaches us.
       allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
@@ -121,7 +131,7 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === "google") {
+      if (account?.provider === "google" || account?.provider === "apple") {
         const email = normalizeEmail(user.email ?? "");
         const existing = await prisma.user.findUnique({ where: { email } });
         if (existing?.isDisabled) return false;

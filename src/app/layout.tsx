@@ -18,12 +18,12 @@ const notoMm = Noto_Sans_Myanmar({
 });
 
 export const metadata: Metadata = {
-  title: "CineTown - Book Movie Tickets in Myanmar",
+  title: "Mingalar Cinema - Book Movie Tickets in Myanmar",
   description:
-    "Browse now-showing and coming-soon movies, pick your seats, and book tickets online across CineTown branches in Myanmar.",
+    "Browse now-showing and coming-soon movies, pick your seats, and book tickets online across Mingalar Cinema branches in Myanmar.",
   openGraph: {
-    title: "CineTown",
-    description: "Book movie tickets online across CineTown branches in Myanmar.",
+    title: "Mingalar Cinema",
+    description: "Book movie tickets online across Mingalar Cinema branches in Myanmar.",
     type: "website",
   },
 };

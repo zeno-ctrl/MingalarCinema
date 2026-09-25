@@ -90,6 +90,7 @@
     "name": "Full name",
     "phone": "Phone (optional)",
     "continueWithGoogle": "Continue with Google",
+    "continueWithApple": "Continue with Apple",
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
     "haveAccount": "Already have an account?",

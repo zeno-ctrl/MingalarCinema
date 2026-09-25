@@ -10,7 +10,7 @@ export function formatMMK(amount: number): string {
 
 export function generateBookingReference(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let ref = "CT-";
+  let ref = "MC-";
   for (let i = 0; i < 8; i++) {
     ref += chars[Math.floor(Math.random() * chars.length)];
     if (i === 3) ref += "-";

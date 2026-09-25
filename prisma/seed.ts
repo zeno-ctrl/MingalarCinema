@@ -41,7 +41,7 @@ async function createHallWithSeats(branchId: string, name: string, rows: number,
 }
 
 async function main() {
-  console.log("Seeding CineTown...");
+  console.log("Seeding Mingalar Cinema...");
 
   // ---------------------------------------------------------------------
   // Settings
@@ -51,8 +51,8 @@ async function main() {
     create: {
       key: "brand",
       value: {
-        name: "CineTown",
-        logoText: "CineTown",
+        name: "Mingalar Cinema",
+        logoText: "Mingalar Cinema",
         colors: {
           orange: "#F0522A",
           red: "#D7372B",
@@ -60,7 +60,7 @@ async function main() {
         },
         hotline: "+95 1 234 5678",
         social: {
-          facebook: "https://facebook.com/cinetown",
+          facebook: "https://facebook.com/mingalarcinema",
           viber: "",
           telegram: "",
         },
@@ -75,7 +75,7 @@ async function main() {
   // ---------------------------------------------------------------------
   const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || "admin@cinetown.mm").toLowerCase();
   const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || "ChangeMe123!";
-  const superAdminName = process.env.SUPER_ADMIN_NAME || "CineTown Super Admin";
+  const superAdminName = process.env.SUPER_ADMIN_NAME || "Mingalar Cinema Super Admin";
 
   const passwordHash = await argon2.hash(superAdminPassword);
   await prisma.user.upsert({

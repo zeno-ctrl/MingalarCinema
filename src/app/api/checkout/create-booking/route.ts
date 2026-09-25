@@ -8,7 +8,7 @@ import { env } from "@/lib/env";
 const schema = z.object({
   showtimeId: z.string().min(1),
   promoCode: z.string().trim().max(50).optional(),
-  paymentMethod: z.enum(["CARD", "KBZPAY"]),
+  paymentMethod: z.enum(["CARD", "KBZPAY", "PAY_LATER"]),
 });
 
 export async function POST(req: Request) {

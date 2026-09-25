@@ -32,7 +32,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
 const patchSchema = z.object({
   isDisabled: z.boolean().optional(),
-  role: z.enum(["USER", "ADMIN", "SUPER_ADMIN"]).optional(),
+  role: z.enum(["USER", "CASHIER", "ADMIN", "SUPER_ADMIN"]).optional(),
 });
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {

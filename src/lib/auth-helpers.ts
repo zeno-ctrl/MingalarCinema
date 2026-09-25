@@ -15,7 +15,7 @@ export async function getCurrentUser() {
   return session?.user ?? null;
 }
 
-const roleRank: Record<Role, number> = { USER: 0, ADMIN: 1, SUPER_ADMIN: 2 };
+const roleRank: Record<Role, number> = { USER: 0, CASHIER: 1, ADMIN: 2, SUPER_ADMIN: 3 };
 
 export function hasRole(role: Role, minimum: Role): boolean {
   return roleRank[role] >= roleRank[minimum];
@@ -64,5 +64,19 @@ export async function requirePageRole(minimum: Role) {
   if (!user) redirect("/login?callbackUrl=/admin");
   if (!hasRole(user.role, minimum)) redirect("/");
   if (!user.twoFactorEnabled) redirect("/admin/setup-2fa");
+  return user;
+}
+
+/**
+ * Cashier dashboard guard. Deliberately doesn't require 2FA like
+ * requirePageRole() does — that flow redirects to /admin/setup-2fa, which is
+ * gated to ADMIN/SUPER_ADMIN only, so a plain CASHIER account would get
+ * bounced back out. Cashiers can only sell tickets for cash, not touch
+ * anything else in /admin, so the lower friction is an acceptable trade-off.
+ */
+export async function requireCashierPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?callbackUrl=/cashier");
+  if (!hasRole(user.role, "CASHIER")) redirect("/");
   return user;
 }

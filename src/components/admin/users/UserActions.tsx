@@ -64,6 +64,7 @@ export function UserActions({
           onChange={(e) => changeRole(e.target.value)}
         >
           <option value="USER">USER</option>
+          <option value="CASHIER">CASHIER</option>
           <option value="ADMIN">ADMIN</option>
           <option value="SUPER_ADMIN">SUPER_ADMIN</option>
         </select>

@@ -4,8 +4,9 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth-helpers";
 import { getTicketQrDataUrl } from "@/lib/ticket";
 import { formatMMK } from "@/lib/utils";
+import { ResumePaymentButtons } from "@/components/booking/ResumePaymentButtons";
 
-export const metadata = { title: "Your Ticket - CineTown" };
+export const metadata = { title: "Your Ticket - Mingalar Cinema" };
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ reference: string }> }) {
   const { reference } = await params;
@@ -67,9 +68,18 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ r
                 Download Ticket (PDF)
               </a>
             </div>
+          ) : booking.status === "PENDING" && booking.expiresAt && booking.expiresAt > new Date() ? (
+            <div className="space-y-3 pt-2">
+              <p className="rounded-chip bg-warning/15 px-4 py-2 text-sm text-warning">
+                Reserved &mdash; complete payment by{" "}
+                {booking.expiresAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} or these
+                seats will be released.
+              </p>
+              <ResumePaymentButtons bookingId={booking.id} />
+            </div>
           ) : (
             <p className="pt-2 text-sm text-text-muted">
-              {booking.status === "PENDING" ? "Waiting for payment confirmation." : "This booking is no longer active."}
+              {booking.status === "PENDING" ? "This reservation has expired." : "This booking is no longer active."}
             </p>
           )}
         </div>

@@ -29,6 +29,7 @@ export function SeatMap({
   initialMySeatIds,
   initialHoldExpiresAt,
   prices,
+  continueHref,
 }: {
   showtimeId: string;
   seats: SeatMapSeat[];
@@ -36,6 +37,8 @@ export function SeatMap({
   initialMySeatIds: string[];
   initialHoldExpiresAt: string | null;
   prices: Record<SeatType, number>;
+  /** Where "Continue" navigates to. Defaults to the customer checkout pay step. */
+  continueHref?: string;
 }) {
   const router = useRouter();
   const [statuses, setStatuses] = useState<Record<string, SeatStatus>>(initialStatuses);
@@ -208,7 +211,7 @@ export function SeatMap({
           </div>
           <button
             disabled={mySeatIds.length === 0}
-            onClick={() => router.push(`/checkout/pay?showtimeId=${showtimeId}`)}
+            onClick={() => router.push(continueHref ?? `/checkout/pay?showtimeId=${showtimeId}`)}
             className="rounded-chip bg-brand-gradient px-6 py-3 text-sm font-semibold text-white disabled:opacity-40"
           >
             Continue

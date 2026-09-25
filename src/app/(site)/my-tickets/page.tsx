@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth-helpers";
 import { formatMMK } from "@/lib/utils";
 
-export const metadata = { title: "My Tickets - CineTown" };
+export const metadata = { title: "My Tickets - Mingalar Cinema" };
 
 type BookingWithDetails = Prisma.BookingGetPayload<{
   include: { showtime: { include: { movie: true; branch: true; hall: true } }; seats: true };

@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { getActiveBranches } from "@/lib/queries/branches";
 import { isLocale, defaultLocale, LOCALE_COOKIE } from "@/lib/i18n/config";
 
-export const metadata = { title: "Cinemas - CineTown" };
+export const metadata = { title: "Cinemas - Mingalar Cinema" };
 
 export default async function CinemasPage() {
   const branches = await getActiveBranches();

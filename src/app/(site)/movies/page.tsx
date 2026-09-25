@@ -6,7 +6,7 @@ import { isLocale, defaultLocale, LOCALE_COOKIE } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Movies - CineTown" };
+export const metadata = { title: "Movies - Mingalar Cinema" };
 
 export default async function MoviesPage({
   searchParams,

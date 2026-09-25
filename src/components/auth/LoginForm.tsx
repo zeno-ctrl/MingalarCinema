@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useI18n } from "@/lib/i18n/provider";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { GoogleIcon, AppleIcon } from "@/components/auth/ProviderIcons";
 
 const ERROR_MESSAGES: Record<string, { en: string; mm: string }> = {
   INVALID_CREDENTIALS: {
@@ -130,10 +131,21 @@ export function LoginForm() {
       <Button
         type="button"
         variant="secondary"
-        className="w-full"
+        className="w-full items-center gap-2"
         onClick={() => signIn("google", { callbackUrl })}
       >
+        <GoogleIcon />
         {t("auth.continueWithGoogle")}
+      </Button>
+
+      <Button
+        type="button"
+        variant="secondary"
+        className="w-full items-center gap-2"
+        onClick={() => signIn("apple", { callbackUrl })}
+      >
+        <AppleIcon />
+        {t("auth.continueWithApple")}
       </Button>
 
       <p className="text-center text-sm text-text-muted">

@@ -5,7 +5,7 @@ import { requirePageUser } from "@/lib/auth-helpers";
 import { BookingProgressBar } from "@/components/booking/BookingProgressBar";
 import { SeatMap } from "@/components/booking/SeatMap";
 
-export const metadata = { title: "Select Seats - CineTown" };
+export const metadata = { title: "Select Seats - Mingalar Cinema" };
 
 export default async function SeatsPage({
   searchParams,

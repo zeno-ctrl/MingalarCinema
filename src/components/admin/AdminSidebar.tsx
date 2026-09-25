@@ -26,7 +26,7 @@ export function AdminSidebar({ isSuperAdmin }: { isSuperAdmin: boolean }) {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col border-r border-black/10 bg-bg p-4 md:flex dark:border-white/10">
       <Link href="/admin" className="mb-6 text-lg font-extrabold text-brand-red">
-        CineTown Admin
+        Mingalar Cinema Admin
       </Link>
       <nav className="flex-1 space-y-0.5">
         {links.map((link) => {

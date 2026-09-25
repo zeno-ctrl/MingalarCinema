@@ -5,7 +5,7 @@ import { BookingProgressBar } from "@/components/booking/BookingProgressBar";
 import { PayForm } from "@/components/booking/PayForm";
 import { formatMMK } from "@/lib/utils";
 
-export const metadata = { title: "Payment - CineTown" };
+export const metadata = { title: "Payment - Mingalar Cinema" };
 
 export default async function PayPage({
   searchParams,

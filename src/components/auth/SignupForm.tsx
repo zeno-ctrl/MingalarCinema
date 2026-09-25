@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useI18n } from "@/lib/i18n/provider";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { GoogleIcon, AppleIcon } from "@/components/auth/ProviderIcons";
 
 export function SignupForm() {
   const { t } = useI18n();
@@ -113,7 +114,18 @@ export function SignupForm() {
         className="w-full"
         onClick={() => signIn("google", { callbackUrl })}
       >
+        <GoogleIcon />
         {t("auth.continueWithGoogle")}
+      </Button>
+
+      <Button
+        type="button"
+        variant="secondary"
+        className="w-full"
+        onClick={() => signIn("apple", { callbackUrl })}
+      >
+        <AppleIcon />
+        {t("auth.continueWithApple")}
       </Button>
 
       <p className="text-center text-sm text-text-muted">

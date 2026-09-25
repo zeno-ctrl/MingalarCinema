@@ -5,7 +5,7 @@ import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
 import { LogoutAllButton } from "@/components/profile/LogoutAllButton";
 import type { Locale } from "@/lib/i18n/config";
 
-export const metadata = { title: "Profile - CineTown" };
+export const metadata = { title: "Profile - Mingalar Cinema" };
 
 export default async function ProfilePage() {
   const sessionUser = await getCurrentUser();

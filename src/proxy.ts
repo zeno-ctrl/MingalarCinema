@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const ADMIN_ROLES = ["ADMIN", "SUPER_ADMIN"];
+const CASHIER_ROLES = ["CASHIER", "ADMIN", "SUPER_ADMIN"];
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 /**
@@ -34,15 +35,29 @@ export async function proxy(req: NextRequest) {
 
   const isAdminPage = pathname.startsWith("/admin");
   const isAdminApi = pathname.startsWith("/api/admin");
+  const isCashierPage = pathname.startsWith("/cashier");
+  const isCashierApi = pathname.startsWith("/api/cashier");
   const isAccountPage = pathname.startsWith("/profile") || pathname.startsWith("/my-tickets");
   const isCheckoutPage = pathname.startsWith("/checkout");
 
-  if (!isAdminPage && !isAdminApi && !isAccountPage && !isCheckoutPage) {
+  if (!isAdminPage && !isAdminApi && !isCashierPage && !isCashierApi && !isAccountPage && !isCheckoutPage) {
     return NextResponse.next();
   }
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const isValidSession = token && !token.invalid;
+
+  if (isCashierPage || isCashierApi) {
+    if (!isValidSession || !CASHIER_ROLES.includes(token!.role as string)) {
+      if (isCashierApi) {
+        return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+      }
+      const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
 
   if (isAdminPage || isAdminApi) {
     const allowedWithoutFull2FA = pathname === "/admin/setup-2fa" || pathname === "/api/auth/2fa/setup" || pathname === "/api/auth/2fa/enable";
@@ -80,6 +95,7 @@ export async function proxy(req: NextRequest) {
 export const config = {
   matcher: [
     "/admin/:path*",
+    "/cashier/:path*",
     "/api/:path*",
     "/profile/:path*",
     "/my-tickets/:path*",

@@ -22,7 +22,7 @@ export async function generateTicketPdf(booking: FullBooking): Promise<Uint8Arra
   const muted = rgb(0.42, 0.42, 0.44);
   let y = 440;
 
-  page.drawText("CineTown", { x: 20, y, size: 20, font: bold, color: brandRed });
+  page.drawText("Mingalar Cinema", { x: 20, y, size: 16, font: bold, color: brandRed });
   y -= 30;
   page.drawText(booking.showtime.movie.titleEn, { x: 20, y, size: 14, font: bold });
   y -= 22;

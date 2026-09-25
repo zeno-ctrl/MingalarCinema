@@ -11,7 +11,7 @@ export function PayForm({ showtimeId, subtotal }: { showtimeId: string; subtotal
   const [promoCode, setPromoCode] = useState("");
   const [promoStatus, setPromoStatus] = useState<{ discount: number; error?: string } | null>(null);
   const [applyingPromo, setApplyingPromo] = useState(false);
-  const [method, setMethod] = useState<"CARD" | "KBZPAY">("CARD");
+  const [method, setMethod] = useState<"CARD" | "KBZPAY" | "PAY_LATER">("CARD");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,6 +54,10 @@ export function PayForm({ showtimeId, subtotal }: { showtimeId: string; subtotal
       setError(data.error || "Something went wrong.");
       return;
     }
+    if (method === "PAY_LATER") {
+      router.push(`/my-tickets/${data.reference}`);
+      return;
+    }
     sessionStorage.setItem(
       `cinetown_payment_${data.bookingId}`,
       JSON.stringify({
@@ -83,8 +87,8 @@ export function PayForm({ showtimeId, subtotal }: { showtimeId: string; subtotal
       )}
 
       <h2 className="mb-2 mt-6 text-sm font-semibold text-text-muted">Payment method</h2>
-      <div className="grid grid-cols-2 gap-3">
-        {(["CARD", "KBZPAY"] as const).map((m) => (
+      <div className="grid grid-cols-3 gap-3">
+        {(["CARD", "KBZPAY", "PAY_LATER"] as const).map((m) => (
           <button
             key={m}
             type="button"
@@ -94,10 +98,16 @@ export function PayForm({ showtimeId, subtotal }: { showtimeId: string; subtotal
               method === m ? "border-brand-red bg-brand-red/5" : "border-black/10 dark:border-white/10",
             )}
           >
-            {m === "CARD" ? "Credit / Debit Card" : "KBZPay"}
+            {m === "CARD" ? "Credit / Debit Card" : m === "KBZPAY" ? "KBZPay" : "Reserve & Pay Later"}
           </button>
         ))}
       </div>
+      {method === "PAY_LATER" && (
+        <p className="mt-2 text-xs text-text-muted">
+          Your seats are held for 2 hours. Pay online with your booking code from My Tickets, or pay cash at any
+          cinema counter — whichever comes first.
+        </p>
+      )}
 
       <div className="mt-6 flex justify-between text-sm">
         <span className="text-text-muted">Subtotal</span>
@@ -123,7 +133,7 @@ export function PayForm({ showtimeId, subtotal }: { showtimeId: string; subtotal
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-black/10 bg-bg p-4 shadow-card-hover dark:border-white/10">
         <div className="mx-auto max-w-2xl">
           <Button className="w-full" loading={loading} onClick={handlePay}>
-            Pay {formatMMK(total)}
+            {method === "PAY_LATER" ? `Reserve Seats • ${formatMMK(total)}` : `Pay ${formatMMK(total)}`}
           </Button>
         </div>
       </div>

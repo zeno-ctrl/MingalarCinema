@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
 
-export const metadata = { title: "Log in - CineTown" };
+export const metadata = { title: "Log in - Mingalar Cinema" };
 
 export default function LoginPage() {
   return (

@@ -10,8 +10,8 @@ export type BrandSettings = {
 };
 
 const DEFAULT_BRAND: BrandSettings = {
-  name: "CineTown",
-  logoText: "CineTown",
+  name: "Mingalar Cinema",
+  logoText: "Mingalar Cinema",
   colors: { orange: "#F0522A", red: "#D7372B", crimson: "#BE1E2D" },
   hotline: "",
   social: {},

@@ -10,6 +10,7 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
 
   if (!hasPassword) {
     return <p className="text-sm text-text-muted">You sign in with Google. There&rsquo;s no password to change.</p>;
@@ -27,10 +28,21 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
     const data = await res.json();
     setLoading(false);
     if (!res.ok) {
-      setError(typeof data.error === "string" ? data.error : "Something went wrong.");
+      const message =
+        typeof data.error === "string"
+          ? data.error
+          : Object.values(data.error?.fieldErrors ?? {})
+              .flat()
+              .join(" ") || "Something went wrong.";
+      setError(message);
       return;
     }
-    await signOut({ callbackUrl: "/login" });
+    setDone(true);
+    setTimeout(() => signOut({ callbackUrl: "/login" }), 1500);
+  }
+
+  if (done) {
+    return <p className="text-success">Password updated. Signing you out everywhere&hellip;</p>;
   }
 
   return (

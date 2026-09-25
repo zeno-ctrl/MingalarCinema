@@ -9,7 +9,7 @@ export function generateTotpSecret(): string {
 }
 
 export function getOtpAuthUrl(email: string, secret: string): string {
-  return authenticator.keyuri(email, "CineTown", secret);
+  return authenticator.keyuri(email, "Mingalar Cinema", secret);
 }
 
 export async function getQrDataUrl(otpAuthUrl: string): Promise<string> {

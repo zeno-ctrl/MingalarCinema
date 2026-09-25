@@ -1,12 +1,12 @@
-# CineTown
+# Mingalar Cinema
 
 A production-quality, full-stack movie ticket booking platform for a multi-branch
 cinema chain in Myanmar, built with Next.js (App Router), TypeScript, Tailwind CSS,
 Prisma, and PostgreSQL.
 
-CineTown is a placeholder brand — name, logo text, colors, hotline, and social
-links are all stored in the database (see **Site Settings** in the admin
-dashboard) and editable without a code change.
+The brand — name, logo text, colors, hotline, and social links — is stored in the
+database (see **Site Settings** in the admin dashboard) and editable without a
+code change.
 
 ## Tech stack
 
@@ -91,6 +91,7 @@ groups:
 | Database | `DATABASE_URL` | Postgres connection string |
 | Auth | `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `APP_URL` | `NEXTAUTH_SECRET`: `openssl rand -base64 32` |
 | Google OAuth | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Optional — "Continue with Google" is hidden if unset in your own OAuth consent screen, but the button still renders; leave blank to just not use it |
+| Apple OAuth | `APPLE_ID`, `APPLE_SECRET` | Optional — requires a paid Apple Developer Program membership; `APPLE_SECRET` is a JWT you generate yourself (see comments in `.env.example`), not a static value |
 | Email | `RESEND_API_KEY`, `EMAIL_FROM` | Without a key, emails are logged to the server console instead of sent |
 | Images | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Without these, the admin image fields fall back to a "paste a URL" input |
 | Stripe | `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CURRENCY` | See **Payments** below |
@@ -107,11 +108,40 @@ groups:
   dashboard, super-admin only) — there is no public admin signup. Invite
   links expire after 48 hours. Every admin account must enroll in TOTP 2FA
   before it can do anything else in `/admin`.
+- **CASHIER**: staff role for the `/cashier` ticket-counter dashboard (see
+  **Reservations & cashier counter** below). A super-admin promotes an
+  existing account to `CASHIER` from `Users` in the admin dashboard. Unlike
+  ADMIN/SUPER_ADMIN, cashiers aren't required to enroll in 2FA.
 - Sessions are JWT-based (required by NextAuth's Credentials provider) but
   carry a `sessionVersion` that's checked against the database on every
   request, so disabling an account, changing its role, or using "Log out of
   all devices" (Profile page) takes effect immediately rather than waiting
   for the token to expire.
+
+## Reservations & cashier counter
+
+Booking a showtime always creates a `Booking` reserved for **2 hours**
+(`RESERVATION_WINDOW_MS` in `src/lib/booking.ts`) before it's automatically
+released back to other customers — the seat-availability queries already
+treat an expired `PENDING` booking as inactive, and `expireStaleBookings()`
+lazily flips its status the next time anyone checks. A single booking is
+capped at **5 seats** (`MAX_SEATS_PER_BOOKING` in `src/lib/constants.ts`).
+
+At checkout, alongside paying immediately by Card or KBZPay, customers can
+choose **Reserve & Pay Later**: this creates the booking and hands back its
+code (e.g. `MC-AB12-CD34`) right away without charging anything. That code
+can then be used to pay two ways, whichever is more convenient:
+
+- **Online, later**: open `/my-tickets/<reference>` (linked from "My
+  Tickets") and pay by Card or KBZPay from there.
+- **In person**: a cashier looks the code up under `/cashier` → "Pay a
+  reservation" and confirms cash payment.
+
+The `/cashier` dashboard (CASHIER/ADMIN/SUPER_ADMIN only) also supports
+walk-in sales for customers with no account: pick a showtime, select seats,
+take the customer's name/phone, and complete a cash sale — this creates an
+already-`PAID` booking directly (no reservation window) and shows a
+printable ticket (QR + PDF) immediately.
 
 ## Payments
 
@@ -204,7 +234,9 @@ Covered:
 5. **Webhooks**: point Stripe's and KBZPay's dashboards at
    `https://<your-domain>/api/webhooks/stripe` and `/api/webhooks/kbzpay`.
 6. **OAuth**: add `https://<your-domain>/api/auth/callback/google` as an
-   authorized redirect URI in the Google Cloud Console.
+   authorized redirect URI in the Google Cloud Console, and (if using Apple)
+   `https://<your-domain>/api/auth/callback/apple` as the Return URL on your
+   Apple "Sign in with Apple" Services ID.
 
 ## Security notes
 

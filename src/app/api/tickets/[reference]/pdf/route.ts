@@ -28,7 +28,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ referen
   return new NextResponse(Buffer.from(pdfBytes), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="cinetown-${booking.reference}.pdf"`,
+      "Content-Disposition": `attachment; filename="mingalar-cinema-${booking.reference}.pdf"`,
     },
   });
 }

@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const branch = await getBranchBySlug(slug);
   if (!branch) return {};
-  return { title: `${branch.nameEn} - CineTown` };
+  return { title: `${branch.nameEn} - Mingalar Cinema` };
 }
 
 export default async function BranchDetailPage({
