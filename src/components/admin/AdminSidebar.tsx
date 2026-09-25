@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { Logo } from "@/components/Logo";
 
 const links = [
   { href: "/admin", label: "Dashboard" },
@@ -26,8 +25,8 @@ export function AdminSidebar({ isSuperAdmin }: { isSuperAdmin: boolean }) {
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col border-r border-black/10 bg-bg p-4 md:flex dark:border-white/10">
-      <Link href="/admin" className="mb-6 block">
-        <Logo textClassName="text-lg" /> <span className="text-lg font-extrabold text-brand-red">Admin</span>
+      <Link href="/admin" className="mb-6 text-lg font-extrabold text-brand-red">
+        Mingalar Cinema Admin
       </Link>
       <nav className="flex-1 space-y-0.5">
         {links.map((link) => {
