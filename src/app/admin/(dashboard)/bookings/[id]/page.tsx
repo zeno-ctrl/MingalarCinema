@@ -23,7 +23,7 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
 
       <div className="rounded-card bg-bg p-4 shadow-card">
         <dl className="grid grid-cols-2 gap-4 text-sm">
-          <Field label="Movie" value={booking.showtime.movie.titleEn} />
+          <Field label="Movie" value={booking.showtime.movie.title} />
           <Field label="Branch / Hall" value={`${booking.showtime.branch.nameEn} / ${booking.showtime.hall.name}`} />
           <Field label="Showtime" value={booking.showtime.startsAt.toLocaleString()} />
           <Field label="Seats" value={booking.seats.map((s) => s.seat.label).join(", ")} />

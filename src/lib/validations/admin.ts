@@ -1,10 +1,8 @@
 import { z } from "zod";
 
 export const movieSchema = z.object({
-  titleEn: z.string().trim().min(1).max(200),
-  titleMm: z.string().trim().min(1).max(200),
-  synopsisEn: z.string().trim().min(1).max(4000),
-  synopsisMm: z.string().trim().min(1).max(4000),
+  title: z.string().trim().min(1).max(200),
+  synopsis: z.string().trim().min(1).max(4000),
   cast: z.array(z.string().trim().min(1)).default([]),
   director: z.string().trim().min(1).max(200),
   genre: z.array(z.string().trim().min(1)).default([]),

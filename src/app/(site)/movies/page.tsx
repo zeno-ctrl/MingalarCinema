@@ -48,7 +48,7 @@ export default async function MoviesPage({
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} locale={locale} className="w-full" />
+          <MovieCard key={movie.id} movie={movie} className="w-full" />
         ))}
       </div>
       {movies.length === 0 && <p className="text-text-muted">Nothing here yet.</p>}

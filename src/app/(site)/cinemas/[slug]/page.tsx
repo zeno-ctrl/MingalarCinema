@@ -45,7 +45,7 @@ export default async function BranchDetailPage({
     const key = s.movieId;
     if (!grouped.has(key)) {
       grouped.set(key, {
-        title: locale === "mm" ? s.movie.titleMm : s.movie.titleEn,
+        title: s.movie.title,
         slug: s.movie.slug,
         showtimes: [],
       });

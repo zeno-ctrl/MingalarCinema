@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   }
 
   const { branchIds, ...data } = parsed.data;
-  const baseSlug = slugify(data.titleEn);
+  const baseSlug = slugify(data.title);
   let slug = baseSlug;
   let n = 1;
   while (await prisma.movie.findUnique({ where: { slug } })) {

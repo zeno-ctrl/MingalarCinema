@@ -19,11 +19,14 @@ export function generateBookingReference(): string {
 }
 
 export function slugify(input: string): string {
-  return input
+  const slug = input
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+  // Falls back to a short random slug for non-Latin-script input (e.g. a
+  // movie title entered entirely in Burmese), which strips to nothing above.
+  return slug || `n-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 /** Normalizes an email for lookup/storage: trims, Unicode-NFKC normalizes,

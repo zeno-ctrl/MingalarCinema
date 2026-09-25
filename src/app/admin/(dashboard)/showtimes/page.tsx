@@ -26,7 +26,7 @@ export default async function AdminShowtimesPage() {
       <ShowtimesTable
         showtimes={showtimes.map((s) => ({
           id: s.id,
-          movieTitle: s.movie.titleEn,
+          movieTitle: s.movie.title,
           branchName: s.branch.nameEn,
           hallName: s.hall.name,
           startsAt: s.startsAt.toISOString(),

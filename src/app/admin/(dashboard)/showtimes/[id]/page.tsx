@@ -6,7 +6,7 @@ export default async function EditShowtimePage({ params }: { params: Promise<{ i
   const { id } = await params;
   const [showtime, movies, branches, halls] = await Promise.all([
     prisma.showtime.findUnique({ where: { id } }),
-    prisma.movie.findMany({ include: { branches: true }, orderBy: { titleEn: "asc" } }),
+    prisma.movie.findMany({ include: { branches: true }, orderBy: { title: "asc" } }),
     prisma.branch.findMany({ orderBy: { nameEn: "asc" } }),
     prisma.hall.findMany({ orderBy: { name: "asc" } }),
   ]);
@@ -17,7 +17,7 @@ export default async function EditShowtimePage({ params }: { params: Promise<{ i
       <h1 className="mb-6 text-2xl font-semibold">Edit Showtime</h1>
       <ShowtimeForm
         showtimeId={showtime.id}
-        movies={movies.map((m) => ({ id: m.id, titleEn: m.titleEn, allBranches: m.allBranches, branchIds: m.branches.map((b) => b.branchId) }))}
+        movies={movies.map((m) => ({ id: m.id, title: m.title, allBranches: m.allBranches, branchIds: m.branches.map((b) => b.branchId) }))}
         branches={branches}
         halls={halls.map((h) => ({ id: h.id, name: h.name, branchId: h.branchId }))}
         initial={{

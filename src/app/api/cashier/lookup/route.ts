@@ -29,7 +29,7 @@ export async function GET(req: Request) {
     reference: booking.reference,
     status: booking.status,
     expiresAt: booking.expiresAt,
-    movieTitle: booking.showtime.movie.titleEn,
+    movieTitle: booking.showtime.movie.title,
     branchName: booking.showtime.branch.nameEn,
     hallName: booking.showtime.hall.name,
     startsAt: booking.showtime.startsAt,

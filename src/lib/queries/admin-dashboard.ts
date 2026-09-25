@@ -40,7 +40,7 @@ export async function getDashboardSummary() {
     revenueByBranch.set(branchKey, branchEntry);
 
     const movieKey = b.showtime.movie.id;
-    const movieEntry = revenueByMovie.get(movieKey) ?? { name: b.showtime.movie.titleEn, revenue: 0 };
+    const movieEntry = revenueByMovie.get(movieKey) ?? { name: b.showtime.movie.title, revenue: 0 };
     movieEntry.revenue += b.total;
     revenueByMovie.set(movieKey, movieEntry);
 
@@ -70,7 +70,7 @@ export async function getDashboardSummary() {
       });
       return {
         id: s.id,
-        movieTitle: s.movie.titleEn,
+        movieTitle: s.movie.title,
         branchName: s.branch.nameEn,
         startsAt: s.startsAt,
         totalSeats,

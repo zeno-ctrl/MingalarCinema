@@ -204,11 +204,9 @@ enum MovieFormat {
 
 model Movie {
   id          String        @id @default(cuid())
-  titleEn     String
-  titleMm     String
+  title       String
   slug        String        @unique
-  synopsisEn  String
-  synopsisMm  String
+  synopsis    String
   cast        String[]      @default([])
   director    String
   genre       String[]      @default([])

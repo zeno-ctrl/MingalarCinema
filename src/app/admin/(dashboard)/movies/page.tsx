@@ -16,7 +16,7 @@ export default async function AdminMoviesPage() {
       <MoviesTable
         movies={movies.map((m) => ({
           id: m.id,
-          titleEn: m.titleEn,
+          title: m.title,
           status: m.status,
           rating: m.rating,
           releaseDate: m.releaseDate.toISOString(),

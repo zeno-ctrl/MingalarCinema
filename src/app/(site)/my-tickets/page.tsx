@@ -57,7 +57,7 @@ function TicketSection({
               className="block rounded-card bg-bg-soft p-4 shadow-card transition-shadow hover:shadow-card-hover"
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-medium">{b.showtime.movie.titleEn}</h3>
+                <h3 className="font-medium">{b.showtime.movie.title}</h3>
                 <span className="text-xs font-medium text-text-muted">{b.status}</span>
               </div>
               <p className="mt-1 text-sm text-text-muted">

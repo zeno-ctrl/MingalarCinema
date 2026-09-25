@@ -13,7 +13,7 @@ type BookingRow = {
   contactEmail: string;
   contactPhone: string | null;
   createdAt: string;
-  showtime: { movie: { titleEn: string }; branch: { nameEn: string }; startsAt: string };
+  showtime: { movie: { title: string }; branch: { nameEn: string }; startsAt: string };
   seats: unknown[];
 };
 
@@ -63,7 +63,7 @@ export default function AdminBookingsPage() {
                     {b.reference}
                   </Link>
                 </td>
-                <td className="px-4 py-3">{b.showtime.movie.titleEn}</td>
+                <td className="px-4 py-3">{b.showtime.movie.title}</td>
                 <td className="px-4 py-3">{b.showtime.branch.nameEn}</td>
                 <td className="px-4 py-3">
                   {b.contactEmail}

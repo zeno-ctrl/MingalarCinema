@@ -73,7 +73,7 @@ export default async function CashierHomePage({
               className="flex items-center justify-between rounded-card bg-bg p-4 shadow-card transition-shadow hover:shadow-card-hover"
             >
               <div>
-                <p className="font-medium">{s.movie.titleEn}</p>
+                <p className="font-medium">{s.movie.title}</p>
                 <p className="text-sm text-text-muted">
                   {s.hall.name} • {s.startsAt.toLocaleString("en-US", { timeStyle: "short" })} • {s.format}
                 </p>

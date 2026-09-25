@@ -1,7 +1,16 @@
 import QRCode from "qrcode";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
 import type { Booking, BookingSeat, Seat, Showtime, Movie, Branch, Hall } from "@prisma/client";
 import { formatMMK } from "@/lib/utils";
+import { notoSansMyanmarBoldBase64 } from "@/lib/fonts/noto-sans-myanmar-bold";
+
+// U+1000-U+109F is the Unicode Myanmar block. The standard PDF fonts can't
+// encode it at all, so a Burmese-script movie title needs the embedded Noto
+// Sans Myanmar font instead — but that font's Latin glyph coverage is
+// incomplete (it's a script-specific web subset), so English titles still
+// use the normal, reliable Helvetica.
+const MYANMAR_SCRIPT = /[က-႟]/;
 
 export type FullBooking = Booking & {
   seats: (BookingSeat & { seat: Seat })[];
@@ -14,9 +23,12 @@ export async function getTicketQrDataUrl(booking: Pick<Booking, "qrToken">): Pro
 
 export async function generateTicketPdf(booking: FullBooking): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
+  doc.registerFontkit(fontkit);
   const page = doc.addPage([320, 480]);
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const boldMyanmar = await doc.embedFont(Buffer.from(notoSansMyanmarBoldBase64, "base64"));
+  const titleFont = MYANMAR_SCRIPT.test(booking.showtime.movie.title) ? boldMyanmar : bold;
 
   const brandRed = rgb(0.843, 0.216, 0.169);
   const muted = rgb(0.42, 0.42, 0.44);
@@ -24,7 +36,7 @@ export async function generateTicketPdf(booking: FullBooking): Promise<Uint8Arra
 
   page.drawText("Mingalar Cinema", { x: 20, y, size: 16, font: bold, color: brandRed });
   y -= 30;
-  page.drawText(booking.showtime.movie.titleEn, { x: 20, y, size: 14, font: bold });
+  page.drawText(booking.showtime.movie.title, { x: 20, y, size: 14, font: titleFont });
   y -= 22;
   page.drawText(`${booking.showtime.branch.nameEn} - ${booking.showtime.hall.name}`, { x: 20, y, size: 10, font, color: muted });
   y -= 16;

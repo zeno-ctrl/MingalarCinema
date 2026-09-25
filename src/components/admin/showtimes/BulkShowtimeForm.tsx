@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useToast } from "@/components/admin/Toast";
 
-type Movie = { id: string; titleEn: string; allBranches: boolean; branchIds: string[] };
+type Movie = { id: string; title: string; allBranches: boolean; branchIds: string[] };
 type Branch = { id: string; nameEn: string };
 type Hall = { id: string; name: string; branchId: string };
 
@@ -90,7 +90,7 @@ export function BulkShowtimeForm({ movies, branches, halls }: { movies: Movie[];
         >
           {movies.map((m) => (
             <option key={m.id} value={m.id}>
-              {m.titleEn}
+              {m.title}
             </option>
           ))}
         </select>

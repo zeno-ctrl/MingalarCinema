@@ -17,10 +17,8 @@ export default async function EditMoviePage({ params }: { params: Promise<{ id: 
         movieId={movie.id}
         branches={branches}
         initial={{
-          titleEn: movie.titleEn,
-          titleMm: movie.titleMm,
-          synopsisEn: movie.synopsisEn,
-          synopsisMm: movie.synopsisMm,
+          title: movie.title,
+          synopsis: movie.synopsis,
           cast: movie.cast.join(", "),
           director: movie.director,
           genre: movie.genre.join(", "),

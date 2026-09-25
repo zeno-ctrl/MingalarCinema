@@ -49,12 +49,12 @@ export async function POST(req: Request) {
 
 function summarize(booking: {
   reference: string;
-  showtime: { movie: { titleEn: string }; branch: { nameEn: string }; startsAt: Date };
+  showtime: { movie: { title: string }; branch: { nameEn: string }; startsAt: Date };
   seats: { seat: { label: string } }[];
 }) {
   return {
     reference: booking.reference,
-    movieTitle: booking.showtime.movie.titleEn,
+    movieTitle: booking.showtime.movie.title,
     branchName: booking.showtime.branch.nameEn,
     startsAt: booking.showtime.startsAt,
     seats: booking.seats.map((s) => s.seat.label),

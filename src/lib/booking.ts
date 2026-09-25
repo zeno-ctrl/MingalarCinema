@@ -135,7 +135,7 @@ export async function createBookingFromHolds({
     };
   }
 
-  const paymentResult = await startPayment(booking, showtime.movie.titleEn, paymentMethod, appUrl);
+  const paymentResult = await startPayment(booking, showtime.movie.title, paymentMethod, appUrl);
 
   return {
     ok: true,
@@ -211,7 +211,7 @@ export async function resumePayment({
     return { ok: false, error: "This reservation has expired or is no longer pending payment." };
   }
 
-  const paymentResult = await startPayment(booking, booking.showtime.movie.titleEn, paymentMethod, appUrl);
+  const paymentResult = await startPayment(booking, booking.showtime.movie.title, paymentMethod, appUrl);
 
   return {
     ok: true,
@@ -275,7 +275,7 @@ export async function confirmCashPaymentForBooking(reference: string): Promise<C
     const qrDataUrl = await getTicketQrDataUrl(booking);
     await sendBookingConfirmationEmail(booking.contactEmail, {
       reference: booking.reference,
-      movieTitle: booking.showtime.movie.titleEn,
+      movieTitle: booking.showtime.movie.title,
       branchName: booking.showtime.branch.nameEn,
       hallName: booking.showtime.hall.name,
       seats: booking.seats.map((s) => s.seat.label),
@@ -399,7 +399,7 @@ export async function createCashBooking({
     const qrDataUrl = await getTicketQrDataUrl(full);
     await sendBookingConfirmationEmail(contactEmail, {
       reference: full.reference,
-      movieTitle: full.showtime.movie.titleEn,
+      movieTitle: full.showtime.movie.title,
       branchName: full.showtime.branch.nameEn,
       hallName: full.showtime.hall.name,
       seats: full.seats.map((s) => s.seat.label),

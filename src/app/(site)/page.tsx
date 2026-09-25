@@ -25,7 +25,7 @@ export default async function HomePage() {
     ...featured.map((m) => ({
       id: m.id,
       imageUrl: m.bannerUrl || m.posterUrl,
-      title: locale === "mm" ? m.titleMm : m.titleEn,
+      title: m.title,
       subtitle: m.genre.join(" • "),
       href: `/movies/${m.slug}`,
     })),
@@ -43,14 +43,14 @@ export default async function HomePage() {
 
       <Section title={dict.home.nowShowing} seeAllHref="/movies?tab=now-showing" seeAllLabel={dict.common.seeAll}>
         {nowShowing.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} locale={locale} />
+          <MovieCard key={movie.id} movie={movie} />
         ))}
         {nowShowing.length === 0 && <p className="text-sm text-text-muted">No movies showing right now.</p>}
       </Section>
 
       <Section title={dict.home.comingSoon} seeAllHref="/movies?tab=coming-soon" seeAllLabel={dict.common.seeAll}>
         {comingSoon.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} locale={locale} />
+          <MovieCard key={movie.id} movie={movie} />
         ))}
         {comingSoon.length === 0 && <p className="text-sm text-text-muted">Nothing announced yet.</p>}
       </Section>

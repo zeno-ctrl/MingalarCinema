@@ -23,7 +23,7 @@ export default async function CashierSeatsPage({
   return (
     <div>
       <div className="px-4 pb-2 pt-4">
-        <h1 className="text-lg font-semibold">{showtime.movie.titleEn}</h1>
+        <h1 className="text-lg font-semibold">{showtime.movie.title}</h1>
         <p className="text-sm text-text-muted">
           {showtime.branch.nameEn} • {showtime.hall.name} •{" "}
           {showtime.startsAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}

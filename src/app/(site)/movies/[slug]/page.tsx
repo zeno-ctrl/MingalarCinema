@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const movie = await getMovieBySlug(slug);
   if (!movie) return {};
   return {
-    title: `${movie.titleEn} - Mingalar Cinema`,
-    description: movie.synopsisEn,
+    title: `${movie.title} - Mingalar Cinema`,
+    description: movie.synopsis,
     openGraph: { images: [movie.posterUrl] },
   };
 }
@@ -63,8 +63,8 @@ export default async function MovieDetailPage({
     : [];
   const withAvailability = await annotateAvailability(showtimes);
 
-  const title = locale === "mm" ? movie.titleMm : movie.titleEn;
-  const synopsis = locale === "mm" ? movie.synopsisMm : movie.synopsisEn;
+  const title = movie.title;
+  const synopsis = movie.synopsis;
   const trailerEmbed = getYoutubeEmbedUrl(movie.trailerUrl);
 
   return (

@@ -20,7 +20,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       isDisabled: true,
       createdAt: true,
       bookings: {
-        select: { id: true, reference: true, status: true, total: true, createdAt: true, showtime: { select: { movie: { select: { titleEn: true } }, startsAt: true } } },
+        select: { id: true, reference: true, status: true, total: true, createdAt: true, showtime: { select: { movie: { select: { title: true } }, startsAt: true } } },
         orderBy: { createdAt: "desc" },
         take: 50,
       },

@@ -8,7 +8,7 @@ import { useToast } from "@/components/admin/Toast";
 
 type MovieRow = {
   id: string;
-  titleEn: string;
+  title: string;
   status: string;
   rating: string;
   releaseDate: string;
@@ -22,7 +22,7 @@ export function MoviesTable({ movies }: { movies: MovieRow[] }) {
 
   async function handleDelete(movie: MovieRow) {
     const ok = await confirm({
-      title: `Delete "${movie.titleEn}"?`,
+      title: `Delete "${movie.title}"?`,
       description: "This cannot be undone.",
       danger: true,
       confirmLabel: "Delete",
@@ -39,7 +39,7 @@ export function MoviesTable({ movies }: { movies: MovieRow[] }) {
   }
 
   const columns: Column<MovieRow>[] = [
-    { key: "titleEn", header: "Title", render: (m) => m.titleEn, sortValue: (m) => m.titleEn },
+    { key: "title", header: "Title", render: (m) => m.title, sortValue: (m) => m.title },
     { key: "status", header: "Status", render: (m) => m.status, sortValue: (m) => m.status },
     { key: "rating", header: "Rating", render: (m) => m.rating },
     {
@@ -55,7 +55,7 @@ export function MoviesTable({ movies }: { movies: MovieRow[] }) {
     <DataTable
       columns={columns}
       rows={movies}
-      searchFn={(m, q) => m.titleEn.toLowerCase().includes(q)}
+      searchFn={(m, q) => m.title.toLowerCase().includes(q)}
       searchPlaceholder="Search movies..."
       actions={(m) => (
         <div className="flex justify-end gap-3 text-sm">

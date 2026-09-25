@@ -76,7 +76,7 @@ async function sendConfirmationEmail(bookingId: string) {
   const qrDataUrl = await getTicketQrDataUrl(booking);
   await sendBookingConfirmationEmail(booking.contactEmail, {
     reference: booking.reference,
-    movieTitle: booking.showtime.movie.titleEn,
+    movieTitle: booking.showtime.movie.title,
     branchName: booking.showtime.branch.nameEn,
     hallName: booking.showtime.hall.name,
     seats: booking.seats.map((s) => s.seat.label),

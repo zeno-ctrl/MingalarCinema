@@ -10,10 +10,8 @@ import { useToast } from "@/components/admin/Toast";
 type Branch = { id: string; nameEn: string };
 
 export type MovieFormValues = {
-  titleEn: string;
-  titleMm: string;
-  synopsisEn: string;
-  synopsisMm: string;
+  title: string;
+  synopsis: string;
   cast: string;
   director: string;
   genre: string;
@@ -33,10 +31,8 @@ export type MovieFormValues = {
 };
 
 const DEFAULTS: MovieFormValues = {
-  titleEn: "",
-  titleMm: "",
-  synopsisEn: "",
-  synopsisMm: "",
+  title: "",
+  synopsis: "",
   cast: "",
   director: "",
   genre: "",
@@ -106,35 +102,19 @@ export function MovieForm({
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
       {error && <div className="rounded-chip bg-error/10 px-4 py-3 text-sm text-error">{error}</div>}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Title (English)">
-          <Input value={values.titleEn} onChange={(e) => set("titleEn", e.target.value)} required />
-        </Field>
-        <Field label="Title (Burmese)">
-          <Input value={values.titleMm} onChange={(e) => set("titleMm", e.target.value)} required />
-        </Field>
-      </div>
+      <Field label="Title">
+        <Input value={values.title} onChange={(e) => set("title", e.target.value)} required />
+      </Field>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Synopsis (English)">
-          <textarea
-            className="w-full rounded-chip border border-black/10 bg-bg p-3 text-sm dark:border-white/15"
-            rows={4}
-            value={values.synopsisEn}
-            onChange={(e) => set("synopsisEn", e.target.value)}
-            required
-          />
-        </Field>
-        <Field label="Synopsis (Burmese)">
-          <textarea
-            className="w-full rounded-chip border border-black/10 bg-bg p-3 text-sm dark:border-white/15"
-            rows={4}
-            value={values.synopsisMm}
-            onChange={(e) => set("synopsisMm", e.target.value)}
-            required
-          />
-        </Field>
-      </div>
+      <Field label="Synopsis">
+        <textarea
+          className="w-full rounded-chip border border-black/10 bg-bg p-3 text-sm dark:border-white/15"
+          rows={4}
+          value={values.synopsis}
+          onChange={(e) => set("synopsis", e.target.value)}
+          required
+        />
+      </Field>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Cast (comma-separated)">

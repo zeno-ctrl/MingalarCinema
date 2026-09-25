@@ -5,20 +5,17 @@ import { RatingBadge } from "./RatingBadge";
 
 export function MovieCard({
   movie,
-  locale,
   className = "w-36 flex-shrink-0 sm:w-44",
 }: {
-  movie: Pick<Movie, "slug" | "titleEn" | "titleMm" | "posterUrl" | "rating" | "genre">;
-  locale: "en" | "mm";
+  movie: Pick<Movie, "slug" | "title" | "posterUrl" | "rating" | "genre">;
   className?: string;
 }) {
-  const title = locale === "mm" ? movie.titleMm : movie.titleEn;
   return (
     <Link href={`/movies/${movie.slug}`} className={`group block ${className}`}>
       <div className="relative aspect-[2/3] overflow-hidden rounded-card bg-bg-soft shadow-card transition-shadow group-hover:shadow-card-hover">
         <Image
           src={movie.posterUrl}
-          alt={title}
+          alt={movie.title}
           fill
           sizes="(max-width: 640px) 144px, 176px"
           className="object-cover transition-transform group-hover:scale-105"
@@ -27,7 +24,7 @@ export function MovieCard({
           <RatingBadge rating={movie.rating} />
         </div>
       </div>
-      <h3 className="mt-2 line-clamp-2 text-sm font-medium leading-snug">{title}</h3>
+      <h3 className="mt-2 line-clamp-2 text-sm font-medium leading-snug">{movie.title}</h3>
       <p className="line-clamp-1 text-xs text-text-muted">{movie.genre.join(" • ")}</p>
     </Link>
   );

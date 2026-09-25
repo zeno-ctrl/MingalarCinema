@@ -4,11 +4,12 @@ import argon2 from "argon2";
 const prisma = new PrismaClient();
 
 function slugify(input: string): string {
-  return input
+  const slug = input
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+  return slug || `n-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 async function createHallWithSeats(branchId: string, name: string, rows: number, columns: number) {
@@ -185,11 +186,9 @@ async function main() {
   // ---------------------------------------------------------------------
   const movieSeeds = [
     {
-      titleEn: "Golden Land Heist",
-      titleMm: "ရွှေပြည်ရွှေတိုက်ဖျက်ခန်း",
-      synopsisEn:
-        "A crew of unlikely allies pulls off the biggest heist Yangon has ever seen, racing against time and a relentless detective.",
-      synopsisMm: "ရန်ကုန်မြို့ကြုံဖူးဆုံးဖူးသော အကြီးမားဆုံးလုယူမှုကြီးကို ပြီးမြောက်စေရန် အချိန်နှင့်ပြေးနေရသော အဖွဲ့တစ်ဖွဲ့၏ဇာတ်လမ်း။",
+      slug: "golden-land-heist",
+      title: "ရွှေပြည်ရွှေတိုက်ဖျက်ခန်း",
+      synopsis: "ရန်ကုန်မြို့ကြုံဖူးဆုံးဖူးသော အကြီးမားဆုံးလုယူမှုကြီးကို ပြီးမြောက်စေရန် အချိန်နှင့်ပြေးနေရသော အဖွဲ့တစ်ဖွဲ့၏ဇာတ်လမ်း။",
       cast: ["Nay Toe", "Wut Hmone Shwe Yi", "Pyay Ti Oo"],
       director: "Aung Ko Latt",
       genre: ["Action", "Thriller"],
@@ -206,10 +205,9 @@ async function main() {
       featured: true,
     },
     {
-      titleEn: "Skyline Odyssey",
-      titleMm: "မိုးကောင်းကင် ခရီးဝေး",
-      synopsisEn: "An astronaut stranded above the atmosphere must find a way home before her oxygen runs out.",
-      synopsisMm: "လေထုအထက်တွင် ကျန်ရစ်ခဲ့သော အာကာသယာဉ်မှူးမိန်းကလေးတစ်ဦး၏ အသက်ရှင်ရန် ခရီးစဉ်။",
+      slug: "skyline-odyssey",
+      title: "Skyline Odyssey",
+      synopsis: "An astronaut stranded above the atmosphere must find a way home before her oxygen runs out.",
       cast: ["Eaindra Kyaw Zin", "Okkar Dat Khay"],
       director: "Sandi Myint Lwin",
       genre: ["Sci-Fi", "Drama"],
@@ -226,10 +224,9 @@ async function main() {
       featured: true,
     },
     {
-      titleEn: "Monsoon Melody",
-      titleMm: "မိုးရာသီသီချင်း",
-      synopsisEn: "A romance blooms between two street musicians during the rainy season in old Yangon.",
-      synopsisMm: "ရန်ကုန်မြို့ဟောင်း မိုးရာသီအတွင်း လမ်းဂီတသမား နှစ်ဦးကြား အချစ်ဇာတ်လမ်း။",
+      slug: "monsoon-melody",
+      title: "မိုးရာသီသီချင်း",
+      synopsis: "ရန်ကုန်မြို့ဟောင်း မိုးရာသီအတွင်း လမ်းဂီတသမား နှစ်ဦးကြား အချစ်ဇာတ်လမ်း။",
       cast: ["Paing Takhon", "Poe Kyar Phyu"],
       director: "Thu Rein Aung",
       genre: ["Romance", "Musical"],
@@ -246,10 +243,9 @@ async function main() {
       featured: false,
     },
     {
-      titleEn: "Iron Dragon Rising",
-      titleMm: "သံနဂါး ထွန်းလင်းချိန်",
-      synopsisEn: "A martial arts champion trains for one last tournament to save his family's legacy.",
-      synopsisMm: "မိသားစုအမွေအနှစ်ကို ကယ်တင်ရန် နောက်ဆုံးပြိုင်ပွဲအတွက် လေ့ကျင့်နေသော ကျင်းသင်ခေါင်းဆောင်တစ်ဦး။",
+      slug: "iron-dragon-rising",
+      title: "သံနဂါး ထွန်းလင်းချိန်",
+      synopsis: "မိသားစုအမွေအနှစ်ကို ကယ်တင်ရန် နောက်ဆုံးပြိုင်ပွဲအတွက် လေ့ကျင့်နေသော ကျင်းသင်ခေါင်းဆောင်တစ်ဦး။",
       cast: ["Zenn Kyi", "Mo Mo Myint Aung"],
       director: "Ye Lwin Aung",
       genre: ["Action"],
@@ -266,10 +262,9 @@ async function main() {
       featured: true,
     },
     {
-      titleEn: "The Last Lantern",
-      titleMm: "နောက်ဆုံးမီးအိမ်",
-      synopsisEn: "A grandmother's mysterious lantern reveals the secret history of her village.",
-      synopsisMm: "အဖွားတစ်ဦး၏ လျှို့ဝှက်မီးအိမ်ဟောင်းက ကျေးရွာ၏ သမိုင်းကို ဖော်ထုတ်ပေးသည်။",
+      slug: "the-last-lantern",
+      title: "နောက်ဆုံးမီးအိမ်",
+      synopsis: "အဖွားတစ်ဦး၏ လျှို့ဝှက်မီးအိမ်ဟောင်းက ကျေးရွာ၏ သမိုင်းကို ဖော်ထုတ်ပေးသည်။",
       cast: ["Khin Wint Wah", "Lu Min"],
       director: "Ma Ma Thit",
       genre: ["Mystery", "Family"],
@@ -290,8 +285,8 @@ async function main() {
   const movies = [];
   for (const m of movieSeeds) {
     const movie = await prisma.movie.upsert({
-      where: { slug: slugify(m.titleEn) },
-      create: { ...m, slug: slugify(m.titleEn), allBranches: true },
+      where: { slug: m.slug },
+      create: { ...m, allBranches: true },
       update: {},
     });
     movies.push(movie);

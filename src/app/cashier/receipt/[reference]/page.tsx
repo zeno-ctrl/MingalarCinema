@@ -26,7 +26,7 @@ export default async function CashierReceiptPage({ params }: { params: Promise<{
       <div className="overflow-hidden rounded-card bg-bg shadow-card">
         <div className="bg-brand-gradient p-4 text-white">
           <p className="text-xs uppercase tracking-wide opacity-80">Paid (cash)</p>
-          <h1 className="text-lg font-semibold">{booking.showtime.movie.titleEn}</h1>
+          <h1 className="text-lg font-semibold">{booking.showtime.movie.title}</h1>
         </div>
         <div className="space-y-3 p-4">
           <div className="text-sm">

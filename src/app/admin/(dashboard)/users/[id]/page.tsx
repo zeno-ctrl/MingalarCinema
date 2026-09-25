@@ -18,7 +18,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
           status: true,
           total: true,
           createdAt: true,
-          showtime: { select: { movie: { select: { titleEn: true } }, startsAt: true } },
+          showtime: { select: { movie: { select: { title: true } }, startsAt: true } },
         },
         orderBy: { createdAt: "desc" },
         take: 50,
@@ -41,7 +41,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         {user.bookings.map((b) => (
           <div key={b.id} className="rounded-chip bg-bg-soft p-3 text-sm">
             <div className="flex justify-between">
-              <span>{b.showtime.movie.titleEn}</span>
+              <span>{b.showtime.movie.title}</span>
               <span className="text-text-muted">{b.status}</span>
             </div>
             <div className="flex justify-between text-text-muted">
