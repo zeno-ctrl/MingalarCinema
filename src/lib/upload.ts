@@ -36,7 +36,7 @@ export async function uploadImage(file: File): Promise<UploadResult> {
   const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
 
   const result = await cloudinary.uploader.upload(dataUri, {
-    folder: "cinetown",
+    folder: "mingalar-cinema",
     resource_type: "image",
   });
 

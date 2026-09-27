@@ -59,7 +59,7 @@ export function PayForm({ showtimeId, subtotal }: { showtimeId: string; subtotal
       return;
     }
     sessionStorage.setItem(
-      `cinetown_payment_${data.bookingId}`,
+      `mingalar_payment_${data.bookingId}`,
       JSON.stringify({
         provider: data.provider,
         clientSecret: data.clientSecret,

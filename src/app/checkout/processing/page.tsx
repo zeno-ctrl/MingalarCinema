@@ -23,7 +23,7 @@ function ProcessingContent() {
 
   const [payload] = useState<PaymentPayload | null>(() => {
     if (!bookingId || typeof window === "undefined") return null;
-    const raw = sessionStorage.getItem(`cinetown_payment_${bookingId}`);
+    const raw = sessionStorage.getItem(`mingalar_payment_${bookingId}`);
     return raw ? JSON.parse(raw) : null;
   });
   const [status, setStatus] = useState<string>("PENDING");

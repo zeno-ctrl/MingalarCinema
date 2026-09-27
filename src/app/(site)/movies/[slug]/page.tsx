@@ -14,7 +14,7 @@ import { DateChips } from "@/components/booking/DateChips";
 import { TimeChips } from "@/components/booking/TimeChips";
 import { BranchChips } from "@/components/booking/BranchChips";
 
-const LAST_BRANCH_COOKIE = "cinetown_last_branch";
+const LAST_BRANCH_COOKIE = "mingalar_last_branch";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

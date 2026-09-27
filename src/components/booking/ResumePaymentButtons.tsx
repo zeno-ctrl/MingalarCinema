@@ -24,7 +24,7 @@ export function ResumePaymentButtons({ bookingId }: { bookingId: string }) {
       return;
     }
     sessionStorage.setItem(
-      `cinetown_payment_${bookingId}`,
+      `mingalar_payment_${bookingId}`,
       JSON.stringify({
         provider: data.provider,
         clientSecret: data.clientSecret,

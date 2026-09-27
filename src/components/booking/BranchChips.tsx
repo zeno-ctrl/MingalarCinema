@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const LAST_BRANCH_COOKIE = "cinetown_last_branch";
+const LAST_BRANCH_COOKIE = "mingalar_last_branch";
 
 export function BranchChips({
   branches,

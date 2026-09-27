@@ -32,7 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const cookieStore = await cookies();
   const localeCookie = cookieStore.get(LOCALE_COOKIE)?.value;
   const locale = isLocale(localeCookie) ? localeCookie : defaultLocale;
-  const themePref = (cookieStore.get("cinetown_theme")?.value as ThemePref) || "system";
+  const themePref = (cookieStore.get("mingalar_theme")?.value as ThemePref) || "system";
   const dict = getDictionary(locale);
   const session = await getServerSession(authOptions);
 

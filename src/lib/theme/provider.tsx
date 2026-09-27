@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 export type ThemePref = "light" | "dark" | "system";
-const THEME_COOKIE = "cinetown_theme";
+const THEME_COOKIE = "mingalar_theme";
 
 type ThemeContextValue = {
   pref: ThemePref;
