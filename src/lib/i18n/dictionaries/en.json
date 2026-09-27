@@ -100,7 +100,15 @@
     "passwordRules": "At least 8 characters, with an uppercase letter, a lowercase letter, and a number.",
     "setNewPassword": "Set a new password",
     "invalidResetLink": "This reset link is invalid.",
-    "passwordUpdatedRedirecting": "Password updated. Redirecting to login…"
+    "passwordUpdatedRedirecting": "Password updated. Redirecting to login…",
+    "useLoginCode": "Log in with an emailed code instead",
+    "usePassword": "Log in with a password instead",
+    "sendCode": "Send code",
+    "sendingCode": "Sending…",
+    "codeSent": "We've emailed a 6-digit code to {email}. Enter it below.",
+    "loginCodeLabel": "Login code",
+    "resendCode": "Resend code",
+    "codeRequestFailed": "Couldn't send the code. Please try again."
   },
   "profile": {
     "currentPassword": "Current password",

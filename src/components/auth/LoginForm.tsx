@@ -33,12 +33,43 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
+  const [mode, setMode] = useState<"password" | "code">("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loginCode, setLoginCode] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
   const [otp, setOtp] = useState("");
   const [needsOtp, setNeedsOtp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  function switchMode(next: "password" | "code") {
+    setMode(next);
+    setError(null);
+    setNeedsOtp(false);
+    setCodeSent(false);
+    setPassword("");
+    setLoginCode("");
+    setOtp("");
+  }
+
+  async function handleSendCode() {
+    setError(null);
+    setSendingCode(true);
+    try {
+      await fetch("/api/auth/request-login-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      setCodeSent(true);
+    } catch {
+      setError(t("auth.codeRequestFailed"));
+    } finally {
+      setSendingCode(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,7 +77,7 @@ export function LoginForm() {
     setLoading(true);
     const result = await signIn("credentials", {
       email,
-      password,
+      ...(mode === "password" ? { password } : { loginCode }),
       ...(needsOtp ? { otp } : {}),
       redirect: false,
     });
@@ -81,17 +112,50 @@ export function LoginForm() {
         onChange={(e) => setEmail(e.target.value)}
         autoComplete="email"
         required
-        disabled={needsOtp}
+        disabled={needsOtp || (mode === "code" && codeSent)}
       />
-      <Input
-        type="password"
-        placeholder={t("auth.password")}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        autoComplete="current-password"
-        required
-        disabled={needsOtp}
-      />
+
+      {mode === "password" && (
+        <Input
+          type="password"
+          placeholder={t("auth.password")}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          required
+          disabled={needsOtp}
+        />
+      )}
+
+      {mode === "code" && !codeSent && (
+        <Button type="button" className="w-full" loading={sendingCode} onClick={handleSendCode} disabled={!email}>
+          {t("auth.sendCode")}
+        </Button>
+      )}
+
+      {mode === "code" && codeSent && !needsOtp && (
+        <div>
+          <p className="mb-2 text-sm text-text-muted">{t("auth.codeSent", { email })}</p>
+          <Input
+            inputMode="numeric"
+            pattern="[0-9]{6}"
+            maxLength={6}
+            placeholder="123456"
+            value={loginCode}
+            onChange={(e) => setLoginCode(e.target.value.replace(/\D/g, ""))}
+            autoFocus
+            required
+          />
+          <button
+            type="button"
+            className="mt-2 text-sm text-brand-red hover:underline"
+            onClick={handleSendCode}
+            disabled={sendingCode}
+          >
+            {t("auth.resendCode")}
+          </button>
+        </div>
+      )}
 
       {needsOtp && (
         <div>
@@ -112,14 +176,26 @@ export function LoginForm() {
         </div>
       )}
 
-      <Button type="submit" className="w-full" loading={loading}>
-        {needsOtp ? t("common.confirm") : t("common.login")}
-      </Button>
+      {(mode === "password" || (mode === "code" && codeSent)) && (
+        <Button type="submit" className="w-full" loading={loading}>
+          {needsOtp ? t("common.confirm") : t("common.login")}
+        </Button>
+      )}
 
-      <div className="text-right">
-        <a href="/forgot-password" className="text-sm text-brand-red hover:underline">
-          {t("auth.forgotPassword")}
-        </a>
+      <div className="flex items-center justify-between text-sm">
+        <button
+          type="button"
+          className="text-brand-red hover:underline"
+          onClick={() => switchMode(mode === "password" ? "code" : "password")}
+          disabled={needsOtp}
+        >
+          {mode === "password" ? t("auth.useLoginCode") : t("auth.usePassword")}
+        </button>
+        {mode === "password" && (
+          <a href="/forgot-password" className="text-brand-red hover:underline">
+            {t("auth.forgotPassword")}
+          </a>
+        )}
       </div>
 
       <div className="flex items-center gap-3 py-1">

@@ -27,6 +27,15 @@ export const loginSchema = z.object({
 });
 export type LoginInput = z.infer<typeof loginSchema>;
 
+export const requestLoginCodeSchema = z.object({
+  email: z.string().trim().email().max(255),
+});
+
+export const loginWithCodeSchema = z.object({
+  email: z.string().trim().email().max(255),
+  code: z.string().length(6).regex(/^\d{6}$/, "Enter the 6-digit code"),
+});
+
 export const forgotPasswordSchema = z.object({
   email: z.string().trim().email().max(255),
 });

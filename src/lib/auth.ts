@@ -49,10 +49,11 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        loginCode: { label: "Login code", type: "text" },
         otp: { label: "One-time code", type: "text" },
       },
       async authorize(credentials, req) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.email || (!credentials?.password && !credentials?.loginCode)) {
           throw new Error(INVALID_CREDENTIALS);
         }
 
@@ -68,7 +69,7 @@ export const authOptions: NextAuthOptions = {
         const email = normalizeEmail(credentials.email);
         const user = await prisma.user.findUnique({ where: { email } });
 
-        if (!user || !user.passwordHash) {
+        if (!user) {
           throw new Error(INVALID_CREDENTIALS);
         }
         if (user.isDisabled) {
@@ -78,18 +79,39 @@ export const authOptions: NextAuthOptions = {
           throw new Error("ACCOUNT_LOCKED");
         }
 
-        const validPassword = await argon2.verify(user.passwordHash, credentials.password);
-        if (!validPassword) {
-          const failedLoginCount = user.failedLoginCount + 1;
-          const shouldLock = failedLoginCount >= MAX_FAILED_ATTEMPTS;
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              failedLoginCount: shouldLock ? 0 : failedLoginCount,
-              lockedUntil: shouldLock ? new Date(Date.now() + LOCK_DURATION_MS) : null,
-            },
+        if (credentials.loginCode) {
+          // Per-account throttle: a 6-digit code is brute-forceable within
+          // its 10-minute validity window without this.
+          const codeCheck = await rateLimit(`login-code-verify:${user.id}`, RATE_LIMITS.loginCodeVerify);
+          if (!codeCheck.success) {
+            throw new Error("ACCOUNT_LOCKED");
+          }
+
+          const token = await prisma.verificationToken.findFirst({
+            where: { identifier: email, token: credentials.loginCode, type: "LOGIN_CODE" },
           });
-          throw new Error(shouldLock ? "ACCOUNT_LOCKED" : INVALID_CREDENTIALS);
+          if (!token || token.expires < new Date()) {
+            throw new Error(INVALID_CREDENTIALS);
+          }
+          // One-time use: delete on successful match so the code can't be replayed.
+          await prisma.verificationToken.delete({ where: { id: token.id } }).catch(() => {});
+        } else {
+          if (!user.passwordHash) {
+            throw new Error(INVALID_CREDENTIALS);
+          }
+          const validPassword = await argon2.verify(user.passwordHash, credentials.password!);
+          if (!validPassword) {
+            const failedLoginCount = user.failedLoginCount + 1;
+            const shouldLock = failedLoginCount >= MAX_FAILED_ATTEMPTS;
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                failedLoginCount: shouldLock ? 0 : failedLoginCount,
+                lockedUntil: shouldLock ? new Date(Date.now() + LOCK_DURATION_MS) : null,
+              },
+            });
+            throw new Error(shouldLock ? "ACCOUNT_LOCKED" : INVALID_CREDENTIALS);
+          }
         }
 
         if (user.twoFactorEnabled) {
