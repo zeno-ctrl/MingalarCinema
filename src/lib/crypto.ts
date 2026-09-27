@@ -33,3 +33,9 @@ export function decryptSecret(payload: string): string {
 export function generateSecureToken(bytes = 32): string {
   return crypto.randomBytes(bytes).toString("base64url");
 }
+
+/** Cryptographically-random fixed-width numeric code (e.g. a login code), zero-padded. */
+export function generateNumericCode(digits = 6): string {
+  const max = 10 ** digits;
+  return crypto.randomInt(0, max).toString().padStart(digits, "0");
+}

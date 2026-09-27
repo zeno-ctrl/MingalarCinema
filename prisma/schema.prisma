@@ -97,6 +97,7 @@ model VerificationToken {
 enum VerificationTokenType {
   EMAIL_VERIFY
   PASSWORD_RESET
+  LOGIN_CODE
 }
 
 model AdminInvite {

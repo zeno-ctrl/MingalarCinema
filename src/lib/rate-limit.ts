@@ -66,6 +66,8 @@ export const RATE_LIMITS = {
   passwordReset: { limit: 3, windowMs: 60_000 * 10 },
   otp: { limit: 5, windowMs: 60_000 * 5 },
   payment: { limit: 10, windowMs: 60_000 },
+  loginCodeRequest: { limit: 3, windowMs: 60_000 * 10 },
+  loginCodeVerify: { limit: 5, windowMs: 60_000 * 10 },
 } as const;
 
 export function clientIp(req: Request): string {

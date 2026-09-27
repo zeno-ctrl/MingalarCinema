@@ -54,6 +54,18 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string) {
   );
 }
 
+export async function sendLoginCodeEmail(to: string, code: string) {
+  await send(
+    to,
+    `${code} is your Mingalar Cinema login code`,
+    layout(
+      "Your login code",
+      `<p style="font-size:32px;font-weight:700;letter-spacing:6px;text-align:center;margin:24px 0;">${code}</p>
+       <p style="color:#6B6B70;font-size:13px;">Enter this code to log in. It expires in 10 minutes. If you didn't request this, you can safely ignore this email.</p>`,
+    ),
+  );
+}
+
 export async function sendAdminInviteEmail(to: string, inviteUrl: string, role: string) {
   await send(
     to,
