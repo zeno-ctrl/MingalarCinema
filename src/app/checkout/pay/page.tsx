@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { requirePageUser } from "@/lib/auth-helpers";
+import { requirePageUser, hasRole } from "@/lib/auth-helpers";
 import { BookingProgressBar } from "@/components/booking/BookingProgressBar";
 import { PayForm } from "@/components/booking/PayForm";
 import { formatMMK } from "@/lib/utils";
@@ -68,7 +68,7 @@ export default async function PayPage({
           </div>
         </div>
 
-        <PayForm showtimeId={showtimeId} subtotal={subtotal} />
+        <PayForm showtimeId={showtimeId} subtotal={subtotal} canSellForCash={hasRole(user.role, "CASHIER")} />
       </div>
     </div>
   );
