@@ -7,8 +7,8 @@ import { PinchZoom } from "./PinchZoom";
 import { useCountdown } from "./useCountdown";
 import { MAX_SEATS_PER_BOOKING } from "@/lib/constants";
 
-type SeatType = "STANDARD" | "VIP" | "COUPLE";
-type SeatStatus = "AVAILABLE" | "TAKEN" | "HELD_BY_ME" | "HELD_BY_OTHER";
+type SeatType = "STANDARD" | "COUPLE";
+type SeatStatus = "AVAILABLE" | "TAKEN" | "BOOKED_BY_ME" | "HELD_BY_ME" | "HELD_BY_OTHER";
 
 export type SeatMapSeat = {
   id: string;
@@ -20,7 +20,15 @@ export type SeatMapSeat = {
   isAisleAfter: boolean;
 };
 
-const TYPE_LABEL: Record<SeatType, string> = { STANDARD: "Standard", VIP: "VIP", COUPLE: "Couple" };
+const TYPE_LABEL: Record<SeatType, string> = { STANDARD: "Standard", COUPLE: "Couple" };
+const UNCLICKABLE: SeatStatus[] = ["TAKEN", "HELD_BY_OTHER", "BOOKED_BY_ME"];
+const SEAT_STATUS_LABEL: Record<SeatStatus, string> = {
+  AVAILABLE: "available",
+  TAKEN: "taken",
+  HELD_BY_OTHER: "taken",
+  HELD_BY_ME: "selected",
+  BOOKED_BY_ME: "already booked by you",
+};
 
 export function SeatMap({
   showtimeId,
@@ -75,7 +83,7 @@ export function SeatMap({
   async function toggleSeat(seat: SeatMapSeat) {
     if (seat.isDisabled || busyRef.current) return;
     const status = statuses[seat.id] ?? "AVAILABLE";
-    if (status === "TAKEN" || status === "HELD_BY_OTHER") return;
+    if (UNCLICKABLE.includes(status)) return;
 
     setError(null);
     setExpiredMessage(false);
@@ -158,8 +166,8 @@ export function SeatMap({
                   <div key={seat.id} className="flex items-center gap-1.5">
                     <button
                       onClick={() => toggleSeat(seat)}
-                      disabled={seat.isDisabled || status === "TAKEN" || status === "HELD_BY_OTHER" || pending === seat.id}
-                      aria-label={`Seat ${seat.label}, ${TYPE_LABEL[seat.type]}, ${status === "HELD_BY_ME" ? "selected" : status.toLowerCase()}`}
+                      disabled={seat.isDisabled || UNCLICKABLE.includes(status) || pending === seat.id}
+                      aria-label={`Seat ${seat.label}, ${TYPE_LABEL[seat.type]}, ${SEAT_STATUS_LABEL[status]}`}
                       className={cn(
                         "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-[10px] font-medium transition-colors sm:h-8 sm:w-8",
                         seat.type === "COUPLE" && "w-9 sm:w-10",
@@ -167,12 +175,10 @@ export function SeatMap({
                           seat.type === "STANDARD" &&
                           "border-2 border-text-muted/40 text-text-muted hover:border-brand-red",
                         status === "AVAILABLE" &&
-                          seat.type === "VIP" &&
-                          "border-2 border-warning text-warning hover:bg-warning/10",
-                        status === "AVAILABLE" &&
                           seat.type === "COUPLE" &&
                           "border-2 border-brand-crimson text-brand-crimson hover:bg-brand-crimson/10",
-                        status === "HELD_BY_ME" && "bg-brand-gradient text-white",
+                        status === "HELD_BY_ME" && "bg-success text-white",
+                        status === "BOOKED_BY_ME" && "bg-brand-gradient text-white",
                         (status === "TAKEN" || status === "HELD_BY_OTHER") &&
                           "cursor-not-allowed bg-black/10 text-transparent dark:bg-white/10",
                       )}
@@ -190,9 +196,9 @@ export function SeatMap({
 
       <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 px-4 text-xs text-text-muted">
         <LegendItem className="border-2 border-text-muted/40" label="Available" />
-        <LegendItem className="bg-brand-gradient" label="Selected" />
+        <LegendItem className="bg-success" label="Selected" />
+        <LegendItem className="bg-brand-gradient" label="Your Ticket" />
         <LegendItem className="bg-black/10 dark:bg-white/10" label="Taken" />
-        <LegendItem className="border-2 border-warning" label="VIP" />
         <LegendItem className="border-2 border-brand-crimson" label="Couple" />
       </div>
 

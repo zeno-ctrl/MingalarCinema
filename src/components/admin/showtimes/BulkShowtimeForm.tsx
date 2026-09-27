@@ -21,7 +21,6 @@ export function BulkShowtimeForm({ movies, branches, halls }: { movies: Movie[];
   const [times, setTimes] = useState("10:00, 13:00, 16:00, 19:00");
   const [format, setFormat] = useState<"D2" | "D3" | "PREMIUM">("D2");
   const [priceStandard, setPriceStandard] = useState(6000);
-  const [priceVip, setPriceVip] = useState(9000);
   const [priceCouple, setPriceCouple] = useState(16000);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +52,6 @@ export function BulkShowtimeForm({ movies, branches, halls }: { movies: Movie[];
         times: timesList,
         format,
         priceStandard,
-        priceVip,
         priceCouple,
       }),
     });
@@ -162,14 +160,10 @@ export function BulkShowtimeForm({ movies, branches, halls }: { movies: Movie[];
         </select>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="mb-1 block text-sm font-medium text-text-muted">Standard (Ks)</label>
           <Input type="number" value={priceStandard} onChange={(e) => setPriceStandard(Number(e.target.value))} />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-text-muted">VIP (Ks)</label>
-          <Input type="number" value={priceVip} onChange={(e) => setPriceVip(Number(e.target.value))} />
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-text-muted">Couple (Ks)</label>

@@ -24,7 +24,6 @@ export default async function CashierPayPage({
 
   const priceByType: Record<string, number> = {
     STANDARD: showtime.priceStandard,
-    VIP: showtime.priceVip,
     COUPLE: showtime.priceCouple,
   };
   const mySeats = showtime.hall.seats.filter((s) => mySeatIds.includes(s.id));

@@ -39,7 +39,7 @@ export default async function CashierSeatsPage({
           initialStatuses={Object.fromEntries(statuses) as Record<string, "AVAILABLE" | "TAKEN" | "HELD_BY_ME" | "HELD_BY_OTHER">}
           initialMySeatIds={mySeatIds}
           initialHoldExpiresAt={myHoldExpiresAt ? myHoldExpiresAt.toISOString() : null}
-          prices={{ STANDARD: showtime.priceStandard, VIP: showtime.priceVip, COUPLE: showtime.priceCouple }}
+          prices={{ STANDARD: showtime.priceStandard, COUPLE: showtime.priceCouple }}
           continueHref={`/cashier/pay?showtimeId=${showtimeId}`}
         />
       )}

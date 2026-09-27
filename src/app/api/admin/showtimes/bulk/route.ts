@@ -23,7 +23,6 @@ export async function POST(req: Request) {
     times,
     format,
     priceStandard,
-    priceVip,
     priceCouple,
     cleaningBufferMin,
   } = parsed.data;
@@ -80,7 +79,6 @@ export async function POST(req: Request) {
         endsAt: c.endsAt,
         format,
         priceStandard,
-        priceVip,
         priceCouple,
       },
     });

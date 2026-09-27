@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
-  const { movieId, branchId, hallId, startsAt, format, priceStandard, priceVip, priceCouple } = parsed.data;
+  const { movieId, branchId, hallId, startsAt, format, priceStandard, priceCouple } = parsed.data;
 
   const [movie, hall] = await Promise.all([
     prisma.movie.findUnique({ where: { id: movieId } }),
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
   }
 
   const showtime = await prisma.showtime.create({
-    data: { movieId, branchId, hallId, startsAt, endsAt, format, priceStandard, priceVip, priceCouple },
+    data: { movieId, branchId, hallId, startsAt, endsAt, format, priceStandard, priceCouple },
   });
 
   await recordAudit({ actorId: user.id, action: "showtime.create", entityType: "Showtime", entityId: showtime.id, after: showtime });

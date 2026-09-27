@@ -28,7 +28,6 @@ export function ShowtimeForm({
     startsAt: string;
     format: "D2" | "D3" | "PREMIUM";
     priceStandard: number;
-    priceVip: number;
     priceCouple: number;
   };
 }) {
@@ -40,7 +39,6 @@ export function ShowtimeForm({
   const [startsAt, setStartsAt] = useState(initial?.startsAt.slice(0, 16) || "");
   const [format, setFormat] = useState<"D2" | "D3" | "PREMIUM">(initial?.format || "D2");
   const [priceStandard, setPriceStandard] = useState(initial?.priceStandard ?? 6000);
-  const [priceVip, setPriceVip] = useState(initial?.priceVip ?? 9000);
   const [priceCouple, setPriceCouple] = useState(initial?.priceCouple ?? 16000);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +58,7 @@ export function ShowtimeForm({
     const res = await fetch(url, {
       method: showtimeId ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ movieId, branchId, hallId, startsAt, format, priceStandard, priceVip, priceCouple }),
+      body: JSON.stringify({ movieId, branchId, hallId, startsAt, format, priceStandard, priceCouple }),
     });
     const data = await res.json();
     setLoading(false);
@@ -151,14 +149,10 @@ export function ShowtimeForm({
         </select>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="mb-1 block text-sm font-medium text-text-muted">Standard (Ks)</label>
           <Input type="number" value={priceStandard} onChange={(e) => setPriceStandard(Number(e.target.value))} />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-text-muted">VIP (Ks)</label>
-          <Input type="number" value={priceVip} onChange={(e) => setPriceVip(Number(e.target.value))} />
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-text-muted">Couple (Ks)</label>

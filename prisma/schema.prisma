@@ -142,7 +142,6 @@ model Branch {
 
 enum SeatType {
   STANDARD
-  VIP
   COUPLE
 }
 
@@ -260,7 +259,6 @@ model Showtime {
   endsAt        DateTime
   format        MovieFormat @default(D2)
   priceStandard Int // in kyat, minor unit = 1 (no decimals for MMK)
-  priceVip      Int
   priceCouple   Int
 
   bookings  Booking[]

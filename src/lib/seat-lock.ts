@@ -76,7 +76,7 @@ export async function releaseAllHoldsForSession(showtimeId: string, sessionId: s
   await prisma.seatHold.deleteMany({ where: { showtimeId, sessionId } });
 }
 
-export type SeatStatus = "AVAILABLE" | "TAKEN" | "HELD_BY_ME" | "HELD_BY_OTHER";
+export type SeatStatus = "AVAILABLE" | "TAKEN" | "BOOKED_BY_ME" | "HELD_BY_ME" | "HELD_BY_OTHER";
 
 export async function getShowtimeSeatStatuses(showtimeId: string, sessionId: string) {
   // Opportunistic cleanup so expired holds don't linger indefinitely in the
@@ -84,17 +84,17 @@ export async function getShowtimeSeatStatuses(showtimeId: string, sessionId: str
   // treats expired rows as available — this just keeps it tidy).
   await prisma.seatHold.deleteMany({ where: { showtimeId, expiresAt: { lt: new Date() } } });
 
-  const [bookedSeatIds, holds] = await Promise.all([
+  const [bookedSeats, holds] = await Promise.all([
     prisma.bookingSeat.findMany({
       where: { booking: { showtimeId, OR: activeBookingOr() } },
-      select: { seatId: true },
+      select: { seatId: true, booking: { select: { userId: true } } },
     }),
     prisma.seatHold.findMany({ where: { showtimeId, expiresAt: { gt: new Date() } } }),
   ]);
 
-  const takenSet = new Set(bookedSeatIds.map((b) => b.seatId));
+  const takenSet = new Set(bookedSeats.map((b) => b.seatId));
   const statuses = new Map<string, SeatStatus>();
-  for (const seatId of takenSet) statuses.set(seatId, "TAKEN");
+  for (const b of bookedSeats) statuses.set(b.seatId, b.booking.userId === sessionId ? "BOOKED_BY_ME" : "TAKEN");
   for (const hold of holds) {
     if (!takenSet.has(hold.seatId)) {
       statuses.set(hold.seatId, hold.sessionId === sessionId ? "HELD_BY_ME" : "HELD_BY_OTHER");

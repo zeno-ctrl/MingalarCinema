@@ -50,7 +50,7 @@ export const seatConfigSchema = z.object({
     z.object({
       row: z.string().min(1),
       column: z.coerce.number().int().min(1),
-      type: z.enum(["STANDARD", "VIP", "COUPLE"]),
+      type: z.enum(["STANDARD", "COUPLE"]),
       isDisabled: z.boolean(),
       isAisleAfter: z.boolean(),
     }),
@@ -64,7 +64,6 @@ export const showtimeSchema = z.object({
   startsAt: z.coerce.date(),
   format: z.enum(["D2", "D3", "PREMIUM"]),
   priceStandard: z.coerce.number().int().min(0),
-  priceVip: z.coerce.number().int().min(0),
   priceCouple: z.coerce.number().int().min(0),
 });
 export type ShowtimeInput = z.infer<typeof showtimeSchema>;
@@ -78,7 +77,6 @@ export const bulkShowtimeSchema = z.object({
   times: z.array(z.string().regex(/^\d{2}:\d{2}$/)).min(1),
   format: z.enum(["D2", "D3", "PREMIUM"]),
   priceStandard: z.coerce.number().int().min(0),
-  priceVip: z.coerce.number().int().min(0),
   priceCouple: z.coerce.number().int().min(0),
   cleaningBufferMin: z.coerce.number().int().min(0).max(120).default(20),
 });

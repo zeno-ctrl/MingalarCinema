@@ -64,7 +64,6 @@ export async function createBookingFromHolds({
 
   const priceByType: Record<string, number> = {
     STANDARD: showtime.priceStandard,
-    VIP: showtime.priceVip,
     COUPLE: showtime.priceCouple,
   };
   const subtotal = myHolds.reduce((sum, h) => sum + priceByType[h.seat.type], 0);
@@ -330,7 +329,6 @@ export async function createCashBooking({
 
   const priceByType: Record<string, number> = {
     STANDARD: showtime.priceStandard,
-    VIP: showtime.priceVip,
     COUPLE: showtime.priceCouple,
   };
   const subtotal = myHolds.reduce((sum, h) => sum + priceByType[h.seat.type], 0);

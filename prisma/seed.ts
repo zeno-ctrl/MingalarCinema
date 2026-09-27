@@ -21,10 +21,9 @@ async function createHallWithSeats(branchId: string, name: string, rows: number,
   const seatsData = [];
   for (const row of rowLetters) {
     for (let col = 1; col <= columns; col++) {
-      // Back two rows are VIP, front row has a couple-seat pair at each end
+      // Back row has a couple-seat pair at each end
       let type: SeatType = SeatType.STANDARD;
       const rowIndex = rowLetters.indexOf(row);
-      if (rowIndex >= rows - 2) type = SeatType.VIP;
       if (rowIndex === rows - 1 && (col <= 2 || col > columns - 2)) type = SeatType.COUPLE;
 
       seatsData.push({
@@ -324,7 +323,6 @@ async function main() {
             endsAt,
             format: movie.formats[0],
             priceStandard: 6000,
-            priceVip: 9000,
             priceCouple: 16000,
           },
         });

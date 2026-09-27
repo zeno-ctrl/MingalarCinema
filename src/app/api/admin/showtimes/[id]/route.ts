@@ -18,7 +18,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
-  const { movieId, branchId, hallId, startsAt, format, priceStandard, priceVip, priceCouple } = parsed.data;
+  const { movieId, branchId, hallId, startsAt, format, priceStandard, priceCouple } = parsed.data;
 
   const [movie, hall] = await Promise.all([
     prisma.movie.findUnique({ where: { id: movieId } }),
@@ -39,7 +39,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   const showtime = await prisma.showtime.update({
     where: { id },
-    data: { movieId, branchId, hallId, startsAt, endsAt, format, priceStandard, priceVip, priceCouple },
+    data: { movieId, branchId, hallId, startsAt, endsAt, format, priceStandard, priceCouple },
   });
 
   await recordAudit({ actorId: user.id, action: "showtime.update", entityType: "Showtime", entityId: id, before, after: showtime });

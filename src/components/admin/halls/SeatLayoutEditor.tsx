@@ -6,14 +6,13 @@ import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/admin/Toast";
 import { cn } from "@/lib/utils";
 
-type SeatType = "STANDARD" | "VIP" | "COUPLE";
+type SeatType = "STANDARD" | "COUPLE";
 type SeatState = { type: SeatType; isDisabled: boolean };
 
-const CYCLE: SeatType[] = ["STANDARD", "VIP", "COUPLE"];
+const CYCLE: SeatType[] = ["STANDARD", "COUPLE"];
 
 const TYPE_CLASSES: Record<SeatType, string> = {
   STANDARD: "border-text-muted/40 text-text-muted",
-  VIP: "border-warning text-warning",
   COUPLE: "border-brand-crimson text-brand-crimson",
 };
 
@@ -93,7 +92,7 @@ export function SeatLayoutEditor({
   return (
     <div>
       <p className="mb-4 text-sm text-text-muted">
-        Click a seat to cycle Standard → VIP → Couple → Disabled. Click a column marker below to toggle an aisle gap
+        Click a seat to cycle Standard → Couple → Disabled. Click a column marker below to toggle an aisle gap
         after that column.
       </p>
 
@@ -139,7 +138,6 @@ export function SeatLayoutEditor({
 
       <div className="mt-6 flex justify-center gap-4 text-xs text-text-muted">
         <Legend className="border-text-muted/40" label="Standard" />
-        <Legend className="border-warning" label="VIP" />
         <Legend className="border-brand-crimson" label="Couple" />
         <Legend className="bg-black/10 dark:bg-white/10 border-transparent" label="Disabled" />
       </div>

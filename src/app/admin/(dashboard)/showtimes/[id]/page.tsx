@@ -27,7 +27,6 @@ export default async function EditShowtimePage({ params }: { params: Promise<{ i
           startsAt: showtime.startsAt.toISOString(),
           format: showtime.format,
           priceStandard: showtime.priceStandard,
-          priceVip: showtime.priceVip,
           priceCouple: showtime.priceCouple,
         }}
       />

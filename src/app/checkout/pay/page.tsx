@@ -35,7 +35,6 @@ export default async function PayPage({
 
   const priceByType: Record<string, number> = {
     STANDARD: showtime.priceStandard,
-    VIP: showtime.priceVip,
     COUPLE: showtime.priceCouple,
   };
   const subtotal = holds.reduce((sum, h) => sum + priceByType[h.seat.type], 0);
