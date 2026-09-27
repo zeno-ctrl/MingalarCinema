@@ -18,7 +18,7 @@ function layout(title: string, bodyHtml: string) {
   <html><body style="font-family:sans-serif;background:#F7F7F8;padding:24px;">
     <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;">
       <div style="background:linear-gradient(160deg,#F0522A 0%,#BE1E2D 100%);padding:24px;color:#fff;">
-        <h1 style="margin:0;font-size:20px;">Mingalar Cinema/h1>
+        <h1 style="margin:0;font-size:20px;">Mingalar Cinema</h1>
       </div>
       <div style="padding:24px;color:#1A1A1A;">
         <h2 style="margin-top:0;">${title}</h2>

@@ -52,10 +52,25 @@ export function UserActions({
     router.refresh();
   }
 
+  async function sendPasswordReset() {
+    const ok = await confirm({
+      title: "Send this user a password reset email?",
+      confirmLabel: "Send Reset Email",
+    });
+    if (!ok) return;
+    const res = await fetch(`/api/admin/users/${userId}/reset-password`, { method: "POST" });
+    const data = await res.json();
+    if (!res.ok) return show(data.error || "Failed", "error");
+    show("Password reset email sent");
+  }
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       <Button variant={isDisabled ? "primary" : "danger"} onClick={toggleDisabled}>
         {isDisabled ? "Enable Account" : "Disable Account"}
+      </Button>
+      <Button variant="secondary" onClick={sendPasswordReset}>
+        Send Password Reset Email
       </Button>
       {isSuperAdmin && (
         <select
