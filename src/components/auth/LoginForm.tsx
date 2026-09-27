@@ -47,7 +47,7 @@ export function LoginForm() {
     const result = await signIn("credentials", {
       email,
       password,
-      otp: needsOtp ? otp : undefined,
+      ...(needsOtp ? { otp } : {}),
       redirect: false,
     });
     setLoading(false);
