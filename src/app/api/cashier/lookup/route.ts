@@ -9,12 +9,15 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const reference = url.searchParams.get("reference")?.trim().toUpperCase();
-  if (!reference) {
-    return NextResponse.json({ error: "reference is required" }, { status: 400 });
+  // A scanned ticket QR encodes the booking's qrToken, not its human-typed
+  // reference code, so lookup needs to accept either.
+  const qrToken = url.searchParams.get("qrToken")?.trim();
+  if (!reference && !qrToken) {
+    return NextResponse.json({ error: "reference or qrToken is required" }, { status: 400 });
   }
 
   const booking = await prisma.booking.findUnique({
-    where: { reference },
+    where: reference ? { reference } : { qrToken },
     include: {
       showtime: { include: { movie: true, branch: true, hall: true } },
       seats: { include: { seat: true }, orderBy: { seat: { label: "asc" } } },

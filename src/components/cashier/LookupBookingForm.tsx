@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { QrScanButton } from "@/components/cashier/QrScanButton";
 
 type Preview = {
   reference: string;
@@ -25,13 +26,16 @@ export function LookupBookingForm() {
   const [loading, setLoading] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
-  async function lookup(e: React.FormEvent) {
-    e.preventDefault();
+  async function runLookup(params: { reference?: string } | { qrToken: string }) {
     setError(null);
     setDone(null);
     setPreview(null);
     setLoading(true);
-    const res = await fetch(`/api/cashier/lookup?reference=${encodeURIComponent(reference)}`);
+    const query =
+      "qrToken" in params
+        ? `qrToken=${encodeURIComponent(params.qrToken)}`
+        : `reference=${encodeURIComponent(params.reference ?? "")}`;
+    const res = await fetch(`/api/cashier/lookup?${query}`);
     const data = await res.json();
     setLoading(false);
     if (!res.ok) {
@@ -39,6 +43,15 @@ export function LookupBookingForm() {
       return;
     }
     setPreview(data);
+  }
+
+  function lookup(e: React.FormEvent) {
+    e.preventDefault();
+    runLookup({ reference });
+  }
+
+  function handleScan(qrToken: string) {
+    runLookup({ qrToken });
   }
 
   async function confirm() {
@@ -65,6 +78,14 @@ export function LookupBookingForm() {
 
   return (
     <div className="space-y-4">
+      <QrScanButton onScan={handleScan} />
+
+      <div className="flex items-center gap-3 py-1">
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+        <span className="text-xs text-text-muted">or type the code</span>
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+      </div>
+
       <form onSubmit={lookup} className="flex gap-2">
         <Input
           placeholder="Booking code (e.g. MC-1234-5678)"
