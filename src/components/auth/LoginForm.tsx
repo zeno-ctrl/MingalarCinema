@@ -182,7 +182,7 @@ export function LoginForm() {
         </Button>
       )}
 
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex flex-col items-center gap-2 text-center text-sm">
         <button
           type="button"
           className="text-brand-red hover:underline"
