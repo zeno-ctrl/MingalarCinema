@@ -73,7 +73,7 @@ async function main() {
   // ---------------------------------------------------------------------
   // Super admin
   // ---------------------------------------------------------------------
-  const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || "admin@cinetown.mm").toLowerCase();
+  const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || "admin@mingalarcinema.com").toLowerCase();
   const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || "ChangeMe123!";
   const superAdminName = process.env.SUPER_ADMIN_NAME || "Mingalar Cinema Super Admin";
 

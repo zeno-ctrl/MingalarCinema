@@ -68,7 +68,7 @@ Then open <http://localhost:3000>.
 The seed script creates:
 
 - The first **SUPER_ADMIN** account (`SUPER_ADMIN_EMAIL` / `SUPER_ADMIN_PASSWORD`
-  in your `.env`, defaults to `admin@cinetown.mm` / `ChangeMe123!` — **change
+  in your `.env`, defaults to `admin@mingalarcinema.com` / `ChangeMe123!` — **change
   this password in any shared environment**)
 - A sample customer account (`customer@example.com` / `Customer123!`)
 - Four branches (North Okkalapa, South Dagon, Insein, Tarmwe), each with two

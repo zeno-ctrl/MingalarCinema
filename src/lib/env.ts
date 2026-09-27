@@ -10,7 +10,7 @@ const envSchema = z.object({
   APPLE_ID: z.string().optional().default(""),
   APPLE_SECRET: z.string().optional().default(""),
   RESEND_API_KEY: z.string().optional().default(""),
-  EMAIL_FROM: z.string().optional().default("Mingalar Cinema <no-reply@cinetown.mm>"),
+  EMAIL_FROM: z.string().optional().default("Mingalar Cinema <no-reply@mingalarcinema.com>"),
   STRIPE_SECRET_KEY: z.string().optional().default(""),
   STRIPE_PUBLISHABLE_KEY: z.string().optional().default(""),
   STRIPE_WEBHOOK_SECRET: z.string().optional().default(""),
