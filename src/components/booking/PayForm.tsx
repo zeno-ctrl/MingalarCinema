@@ -94,8 +94,10 @@ export function PayForm({ showtimeId, subtotal }: { showtimeId: string; subtotal
             type="button"
             onClick={() => setMethod(m)}
             className={cn(
-              "rounded-card border-2 p-4 text-left text-sm font-medium",
-              method === m ? "border-brand-red bg-brand-red/5" : "border-black/10 dark:border-white/10",
+              "rounded-card border-2 p-4 text-left text-sm font-medium transition-colors",
+              method === m
+                ? "border-brand-red bg-brand-red text-white"
+                : "border-black/10 dark:border-white/10",
             )}
           >
             {m === "CARD" ? "Credit / Debit Card" : m === "KBZPAY" ? "KBZPay" : "Reserve & Pay Later"}
