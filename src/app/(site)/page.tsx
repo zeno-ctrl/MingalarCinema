@@ -41,20 +41,6 @@ export default async function HomePage() {
     <div>
       <Hero slides={heroSlides} />
 
-      <Section title={dict.home.nowShowing} seeAllHref="/movies?tab=now-showing" seeAllLabel={dict.common.seeAll}>
-        {nowShowing.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
-        ))}
-        {nowShowing.length === 0 && <p className="text-sm text-text-muted">No movies showing right now.</p>}
-      </Section>
-
-      <Section title={dict.home.comingSoon} seeAllHref="/movies?tab=coming-soon" seeAllLabel={dict.common.seeAll}>
-        {comingSoon.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
-        ))}
-        {comingSoon.length === 0 && <p className="text-sm text-text-muted">Nothing announced yet.</p>}
-      </Section>
-
       {promotions.length > 0 && (
         <section id="promotions" className="py-6">
           <div className="mx-auto max-w-6xl px-4">
@@ -83,6 +69,20 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <Section title={dict.home.nowShowing} seeAllHref="/movies?tab=now-showing" seeAllLabel={dict.common.seeAll}>
+        {nowShowing.map((movie) => (
+          <MovieCard key={movie.id} movie={movie} />
+        ))}
+        {nowShowing.length === 0 && <p className="text-sm text-text-muted">No movies showing right now.</p>}
+      </Section>
+
+      <Section title={dict.home.comingSoon} seeAllHref="/movies?tab=coming-soon" seeAllLabel={dict.common.seeAll}>
+        {comingSoon.map((movie) => (
+          <MovieCard key={movie.id} movie={movie} />
+        ))}
+        {comingSoon.length === 0 && <p className="text-sm text-text-muted">Nothing announced yet.</p>}
+      </Section>
     </div>
   );
 }
