@@ -4,6 +4,7 @@ import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export default function AcceptInvitePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params);
@@ -46,8 +47,7 @@ export default function AcceptInvitePage({ params }: { params: Promise<{ token: 
             </div>
           )}
           <Input placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} required />
-          <Input
-            type="password"
+          <PasswordInput
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

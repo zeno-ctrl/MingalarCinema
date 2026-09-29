@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { useI18n } from "@/lib/i18n/provider";
 
 export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
@@ -54,15 +54,13 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
           {error}
         </div>
       )}
-      <Input
-        type="password"
+      <PasswordInput
         placeholder={t("profile.currentPassword")}
         value={currentPassword}
         onChange={(e) => setCurrentPassword(e.target.value)}
         required
       />
-      <Input
-        type="password"
+      <PasswordInput
         placeholder={t("profile.newPassword")}
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}

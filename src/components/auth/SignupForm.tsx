@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useI18n } from "@/lib/i18n/provider";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { GoogleIcon, AppleIcon } from "@/components/auth/ProviderIcons";
 
 export function SignupForm() {
@@ -85,8 +86,7 @@ export function SignupForm() {
         onChange={(e) => setPhone(e.target.value)}
         autoComplete="tel"
       />
-      <Input
-        type="password"
+      <PasswordInput
         placeholder={t("auth.password")}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
