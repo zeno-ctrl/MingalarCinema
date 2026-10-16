@@ -13,9 +13,11 @@ export function LanguageSwitcher() {
 
   return (
     <button
+      type="button"
       onClick={toggle}
-      className="rounded-chip px-3 py-1.5 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/10"
-      aria-label="Switch language"
+      className="min-h-11 min-w-11 rounded-chip px-2 text-xs font-medium hover:bg-black/5 sm:px-3 sm:text-sm dark:hover:bg-white/10"
+      aria-label={locale === "en" ? "Switch language to Myanmar" : "Switch language to English"}
+      lang={locale === "en" ? "my" : "en"}
     >
       {locale === "en" ? "မြန်မာ" : "English"}
     </button>

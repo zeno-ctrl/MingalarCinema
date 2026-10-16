@@ -12,7 +12,10 @@ export default function LoginPage() {
       </div>
       <div className="w-full rounded-card bg-bg p-6 shadow-card sm:p-8">
         <Suspense fallback={null}>
-          <LoginForm />
+          <LoginForm
+            googleEnabled={Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim())}
+            appleEnabled={Boolean(process.env.APPLE_ID?.trim() && process.env.APPLE_SECRET?.trim())}
+          />
         </Suspense>
       </div>
     </div>

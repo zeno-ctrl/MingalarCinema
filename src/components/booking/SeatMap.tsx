@@ -55,17 +55,28 @@ export function SeatMap({
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expiredMessage, setExpiredMessage] = useState(false);
+  const [refreshError, setRefreshError] = useState(false);
   const busyRef = useRef(false);
+  const mutationRef = useRef(0);
 
   const seatById = useMemo(() => new Map(seats.map((s) => [s.id, s])), [seats]);
 
   const refreshStatus = useCallback(async () => {
-    const res = await fetch(`/api/checkout/seat-status?showtimeId=${showtimeId}`);
-    if (!res.ok) return;
-    const data = await res.json();
-    setStatuses(data.statuses);
-    setMySeatIds(data.mySeatIds);
-    setHoldExpiresAt(data.myHoldExpiresAt);
+    if (busyRef.current) return;
+    const version = mutationRef.current;
+    try {
+      const res = await fetch(`/api/checkout/seat-status?showtimeId=${encodeURIComponent(showtimeId)}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Unable to refresh seats");
+      const data = await res.json();
+      // A poll started before a seat change must not undo that change.
+      if (busyRef.current || mutationRef.current !== version) return;
+      setStatuses(data.statuses);
+      setMySeatIds(data.mySeatIds);
+      setHoldExpiresAt(data.myHoldExpiresAt);
+      setRefreshError(false);
+    } catch {
+      setRefreshError(true);
+    }
   }, [showtimeId]);
 
   useEffect(() => {
@@ -88,17 +99,24 @@ export function SeatMap({
     setError(null);
     setExpiredMessage(false);
     busyRef.current = true;
+    mutationRef.current += 1;
     setPending(seat.id);
 
     try {
       if (status === "HELD_BY_ME") {
-        await fetch("/api/checkout/hold", {
+        const res = await fetch("/api/checkout/hold", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ showtimeId, seatId: seat.id }),
         });
+        if (!res.ok) {
+          const data = await res.json().catch(() => null);
+          setError(typeof data?.error === "string" ? data.error : "Could not remove that seat. Please try again.");
+          return;
+        }
         setStatuses((prev) => ({ ...prev, [seat.id]: "AVAILABLE" }));
         setMySeatIds((prev) => prev.filter((id) => id !== seat.id));
+        if (mySeatIds.length === 1) setHoldExpiresAt(null);
       } else {
         if (mySeatIds.length >= MAX_SEATS_PER_BOOKING) {
           setError(`You can select up to ${MAX_SEATS_PER_BOOKING} seats.`);
@@ -111,17 +129,19 @@ export function SeatMap({
         });
         const data = await res.json();
         if (!res.ok) {
-          setError(data.error || "Could not select that seat.");
-          await refreshStatus();
+          setError(typeof data.error === "string" ? data.error : "Could not select that seat.");
           return;
         }
         setStatuses((prev) => ({ ...prev, [seat.id]: "HELD_BY_ME" }));
         setMySeatIds((prev) => [...prev, seat.id]);
         setHoldExpiresAt(data.expiresAt);
       }
+    } catch {
+      setError("We couldn't update your seat. Check your connection and try again.");
     } finally {
       busyRef.current = false;
       setPending(null);
+      void refreshStatus();
     }
   }
 
@@ -154,6 +174,13 @@ export function SeatMap({
           {error}
         </div>
       )}
+      {refreshError && (
+        <p className="mx-4 mb-3 text-sm text-text-muted" role="status">
+          Seat availability could not refresh. We&apos;ll keep trying; your next selection will be checked.
+        </p>
+      )}
+
+      <p className="mb-2 px-4 text-center text-xs text-text-muted">Select up to {MAX_SEATS_PER_BOOKING} seats. Swipe to see more seats or use the zoom controls.</p>
 
       <PinchZoom>
         <div className="space-y-1.5 px-4 py-2">
@@ -165,12 +192,15 @@ export function SeatMap({
                 return (
                   <div key={seat.id} className="flex items-center gap-1.5">
                     <button
+                      type="button"
                       onClick={() => toggleSeat(seat)}
-                      disabled={seat.isDisabled || UNCLICKABLE.includes(status) || pending === seat.id}
-                      aria-label={`Seat ${seat.label}, ${TYPE_LABEL[seat.type]}, ${SEAT_STATUS_LABEL[status]}`}
+                      disabled={seat.isDisabled || UNCLICKABLE.includes(status) || pending !== null}
+                      aria-pressed={status === "HELD_BY_ME"}
+                      aria-busy={pending === seat.id}
+                      aria-label={`Seat ${seat.label}, ${TYPE_LABEL[seat.type]}, ${seat.isDisabled ? "unavailable" : SEAT_STATUS_LABEL[status]}, ${formatMMK(prices[seat.type])}`}
                       className={cn(
-                        "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-[10px] font-medium transition-colors sm:h-8 sm:w-8",
-                        seat.type === "COUPLE" && "w-9 sm:w-10",
+                        "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-md text-xs font-medium transition-colors disabled:cursor-not-allowed",
+                        seat.type === "COUPLE" && "w-14",
                         status === "AVAILABLE" &&
                           seat.type === "STANDARD" &&
                           "border-2 border-text-muted/40 text-text-muted hover:border-brand-red",
@@ -181,6 +211,7 @@ export function SeatMap({
                         status === "BOOKED_BY_ME" && "bg-brand-gradient text-white",
                         (status === "TAKEN" || status === "HELD_BY_OTHER") &&
                           "cursor-not-allowed bg-black/10 text-transparent dark:bg-white/10",
+                        seat.isDisabled && "opacity-30",
                       )}
                     >
                       {status !== "TAKEN" && status !== "HELD_BY_OTHER" ? seat.column : ""}
@@ -202,10 +233,10 @@ export function SeatMap({
         <LegendItem className="border-2 border-brand-crimson" label="Couple" />
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-black/10 bg-bg p-4 shadow-card-hover dark:border-white/10">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-black/10 bg-bg p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-card-hover dark:border-white/10">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-text-muted">
+            <p className="text-sm text-text-muted" aria-live="polite">
               {mySeatIds.length} seat{mySeatIds.length !== 1 ? "s" : ""} selected
             </p>
             <p className="text-lg font-semibold">{formatMMK(total)}</p>
@@ -216,7 +247,8 @@ export function SeatMap({
             )}
           </div>
           <button
-            disabled={mySeatIds.length === 0}
+            type="button"
+            disabled={mySeatIds.length === 0 || pending !== null}
             onClick={() => router.push(continueHref ?? `/checkout/pay?showtimeId=${showtimeId}`)}
             className="rounded-chip bg-brand-gradient px-6 py-3 text-sm font-semibold text-white disabled:opacity-40"
           >

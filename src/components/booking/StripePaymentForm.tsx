@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/Button";
@@ -24,21 +24,29 @@ function InnerForm({ onDone }: { onDone: () => void }) {
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const busyRef = useRef(false);
 
   async function handleSubmit() {
-    if (!stripe || !elements) return;
+    if (!stripe || !elements || busyRef.current) return;
+    busyRef.current = true;
     setLoading(true);
     setError(null);
-    const { error: confirmError } = await stripe.confirmPayment({
-      elements,
-      redirect: "if_required",
-    });
-    setLoading(false);
-    if (confirmError) {
-      setError(confirmError.message || "Payment failed. Please try again.");
-      return;
+    try {
+      const { error: confirmError } = await stripe.confirmPayment({
+        elements,
+        redirect: "if_required",
+      });
+      if (confirmError) {
+        setError(confirmError.message || "Payment failed. Please try again.");
+        return;
+      }
+      onDone();
+    } catch {
+      setError("Couldn't confirm payment. Check My Tickets for its status before trying again.");
+    } finally {
+      busyRef.current = false;
+      setLoading(false);
     }
-    onDone();
   }
 
   return (
@@ -49,7 +57,7 @@ function InnerForm({ onDone }: { onDone: () => void }) {
           {error}
         </div>
       )}
-      <Button className="w-full" loading={loading} onClick={handleSubmit}>
+      <Button className="w-full" disabled={!stripe || !elements} loading={loading} onClick={handleSubmit}>
         Confirm payment
       </Button>
     </div>

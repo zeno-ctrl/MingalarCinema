@@ -35,7 +35,7 @@ model User {
   // Bumped to invalidate all previously issued JWT sessions ("log out of all devices")
   sessionVersion Int       @default(0)
 
-  // 2FA (required for ADMIN / SUPER_ADMIN)
+  // Legacy 2FA fields retained for existing databases; sign-in does not require them.
   twoFactorSecret        String?
   twoFactorEnabled       Boolean  @default(false)
   twoFactorRecoveryCodes String[] @default([])

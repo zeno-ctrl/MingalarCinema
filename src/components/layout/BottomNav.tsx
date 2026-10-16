@@ -60,25 +60,25 @@ const items = [
 
 export function BottomNav() {
   const pathname = usePathname();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-bg/95 backdrop-blur md:hidden dark:border-white/10">
+    <nav aria-label={locale === "mm" ? "အဓိက လမ်းညွှန်" : "Main navigation"} className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-white/10">
       <div className="grid grid-cols-5">
         {items.map((item) => {
-          const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const active = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-0.5 py-2 text-[11px]",
+                "flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 px-1 py-2 text-center text-[10px] leading-tight transition-colors sm:text-[11px]",
                 active ? "text-brand-red" : "text-text-muted",
               )}
               aria-current={active ? "page" : undefined}
             >
-              {item.icon(active)}
-              {t(item.key)}
+              <span aria-hidden="true">{item.icon(active)}</span>
+              <span className="max-w-full break-words">{t(item.key)}</span>
             </Link>
           );
         })}

@@ -16,9 +16,7 @@ export function BarChart({ data, height = 120 }: { data: { label: string; value:
             rx={0.5}
             fill="url(#bar-gradient)"
           >
-            <title>
-              {d.label}: {d.value.toLocaleString()}
-            </title>
+            <title>{`${d.label}: ${d.value.toLocaleString("en-US")}`}</title>
           </rect>
         );
       })}

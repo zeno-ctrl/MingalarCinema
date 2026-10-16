@@ -11,7 +11,7 @@ export function MovieCard({
   className?: string;
 }) {
   return (
-    <Link href={`/movies/${movie.slug}`} className={`group block ${className}`}>
+    <Link href={`/movies/${movie.slug}`} className={`group block min-w-0 snap-start rounded-card ${className}`}>
       <div className="relative aspect-[2/3] overflow-hidden rounded-card bg-bg-soft shadow-card transition-shadow group-hover:shadow-card-hover">
         <Image
           src={movie.posterUrl}

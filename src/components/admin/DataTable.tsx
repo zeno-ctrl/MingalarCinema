@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { cn } from "@/lib/utils";
 
 export type Column<T> = {
   key: string;
@@ -50,9 +49,11 @@ export function DataTable<T extends { id: string }>({
   }, [filtered, sortKey, sortDir, columns]);
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
-  const pageRows = sorted.slice((page - 1) * pageSize, page * pageSize);
+  const currentPage = Math.min(page, totalPages);
+  const pageRows = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   function toggleSort(key: string) {
+    setPage(1);
     if (sortKey === key) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
@@ -65,30 +66,37 @@ export function DataTable<T extends { id: string }>({
     <div>
       {searchFn && (
         <input
+          type="search"
+          aria-label={searchPlaceholder}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
             setPage(1);
           }}
           placeholder={searchPlaceholder}
-          className="mb-3 w-full max-w-xs rounded-chip border border-black/10 bg-bg px-3 py-2 text-sm dark:border-white/15"
+          className="mb-3 min-h-11 w-full max-w-xs rounded-chip border border-black/10 bg-bg px-3 py-2 text-sm dark:border-white/15"
         />
       )}
-      <div className="overflow-x-auto rounded-card border border-black/10 dark:border-white/10">
+      <div role="region" aria-label="Results table" tabIndex={0} className="overflow-x-auto rounded-card border border-black/10 dark:border-white/10">
         <table className="w-full min-w-max text-sm">
           <thead className="bg-bg-soft text-left text-xs uppercase text-text-muted">
             <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={cn("px-4 py-3 font-medium", col.sortValue && "cursor-pointer select-none")}
-                  onClick={() => col.sortValue && toggleSort(col.key)}
+                  scope="col"
+                  aria-sort={col.sortValue ? (sortKey === col.key ? (sortDir === "asc" ? "ascending" : "descending") : "none") : undefined}
+                  className="px-4 py-1 font-medium"
                 >
-                  {col.header}
-                  {sortKey === col.key && (sortDir === "asc" ? " ▲" : " ▼")}
+                  {col.sortValue ? (
+                    <button type="button" onClick={() => toggleSort(col.key)} className="flex min-h-11 items-center gap-1 rounded text-left text-xs font-medium uppercase" aria-label={`Sort by ${col.header}${sortKey === col.key && sortDir === "asc" ? " descending" : " ascending"}`}>
+                      {col.header}
+                      {sortKey === col.key && <span aria-hidden="true">{sortDir === "asc" ? "▲" : "▼"}</span>}
+                    </button>
+                  ) : <span className="inline-flex min-h-11 items-center">{col.header}</span>}
                 </th>
               ))}
-              {actions && <th className="px-4 py-3" />}
+              {actions && <th scope="col" className="px-4 py-3"><span className="sr-only">Actions</span></th>}
             </tr>
           </thead>
           <tbody>
@@ -115,19 +123,21 @@ export function DataTable<T extends { id: string }>({
       {totalPages > 1 && (
         <div className="mt-3 flex items-center justify-center gap-2 text-sm">
           <button
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-            className="rounded-chip px-3 py-1.5 disabled:opacity-40"
+            type="button"
+            disabled={currentPage === 1}
+            onClick={() => setPage(currentPage - 1)}
+            className="min-h-11 rounded-chip px-3 py-1.5 disabled:opacity-40"
           >
             Prev
           </button>
-          <span>
-            {page} / {totalPages}
+          <span aria-live="polite" aria-atomic="true">
+            {currentPage} / {totalPages}
           </span>
           <button
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
-            className="rounded-chip px-3 py-1.5 disabled:opacity-40"
+            type="button"
+            disabled={currentPage === totalPages}
+            onClick={() => setPage(currentPage + 1)}
+            className="min-h-11 rounded-chip px-3 py-1.5 disabled:opacity-40"
           >
             Next
           </button>

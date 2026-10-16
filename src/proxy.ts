@@ -23,11 +23,25 @@ function failsOriginCheck(req: NextRequest): boolean {
 
   const origin = req.headers.get("origin");
   if (!origin) return false; // same-origin requests from same-site <form>/fetch don't always send Origin; SameSite cookie is the backstop here
-  return origin !== req.nextUrl.origin;
+  if (origin === req.nextUrl.origin) return false;
+
+  // Reverse proxies can expose an internal request origin (for example,
+  // 0.0.0.0) while the browser uses the configured public application URL.
+  // Trust only that server configuration, never arbitrary forwarded headers.
+  try {
+    const appUrl = new URL(process.env.APP_URL || "");
+    if ((appUrl.protocol === "https:" || appUrl.protocol === "http:") && origin === appUrl.origin) {
+      return false;
+    }
+  } catch {
+    // A missing or invalid public URL must not weaken the origin check.
+  }
+  return true;
 }
 
 export async function proxy(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
+  const callbackUrl = `${pathname}${search}`;
 
   if (pathname.startsWith("/api/") && failsOriginCheck(req)) {
     return NextResponse.json({ error: "cross-origin request rejected" }, { status: 403 });
@@ -53,30 +67,20 @@ export async function proxy(req: NextRequest) {
         return NextResponse.json({ error: "unauthorized" }, { status: 401 });
       }
       const loginUrl = new URL("/login", req.url);
-      loginUrl.searchParams.set("callbackUrl", pathname);
+      loginUrl.searchParams.set("callbackUrl", callbackUrl);
       return NextResponse.redirect(loginUrl);
     }
     return NextResponse.next();
   }
 
   if (isAdminPage || isAdminApi) {
-    const allowedWithoutFull2FA = pathname === "/admin/setup-2fa" || pathname === "/api/auth/2fa/setup" || pathname === "/api/auth/2fa/enable";
-
     if (!isValidSession || !ADMIN_ROLES.includes(token!.role as string)) {
       if (isAdminApi) {
         return NextResponse.json({ error: "unauthorized" }, { status: 401 });
       }
       const loginUrl = new URL("/login", req.url);
-      loginUrl.searchParams.set("callbackUrl", pathname);
+      loginUrl.searchParams.set("callbackUrl", callbackUrl);
       return NextResponse.redirect(loginUrl);
-    }
-
-    // Admins must have 2FA enabled before touching anything else in /admin.
-    if (!token!.twoFactorEnabled && !allowedWithoutFull2FA) {
-      if (isAdminApi) {
-        return NextResponse.json({ error: "2fa_setup_required" }, { status: 403 });
-      }
-      return NextResponse.redirect(new URL("/admin/setup-2fa", req.url));
     }
 
     return NextResponse.next();
@@ -85,7 +89,7 @@ export async function proxy(req: NextRequest) {
   // Customer account / checkout pages just require any valid logged-in user.
   if (!isValidSession) {
     const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
+    loginUrl.searchParams.set("callbackUrl", callbackUrl);
     return NextResponse.redirect(loginUrl);
   }
 

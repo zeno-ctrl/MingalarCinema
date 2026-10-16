@@ -12,6 +12,12 @@ import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { DateChips } from "@/components/booking/DateChips";
 import { TimeChips } from "@/components/booking/TimeChips";
 
+function validDate(value: string | undefined): string {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return todayStr();
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value ? value : todayStr();
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const branch = await getBranchBySlug(slug);
@@ -36,7 +42,7 @@ export default async function BranchDetailPage({
   const locale = isLocale(localeCookie) ? localeCookie : defaultLocale;
   const dict = getDictionary(locale);
 
-  const selectedDate = dateParam || todayStr();
+  const selectedDate = validDate(dateParam);
   const showtimes = await getShowtimesForBranch(branch.id, selectedDate);
   const withAvailability = await annotateAvailability(showtimes);
 
@@ -59,17 +65,27 @@ export default async function BranchDetailPage({
   const address = locale === "mm" ? branch.addressMm : branch.addressEn;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="text-2xl font-semibold">{name}</h1>
-      <p className="mt-1 text-sm text-text-muted">{address}</p>
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:py-8">
+      <Link href="/cinemas" className="mb-4 inline-flex min-h-11 items-center text-sm font-medium text-text-muted hover:text-brand-red">
+        <span aria-hidden="true" className="mr-2">&larr;</span>{dict.nav.cinemas}
+      </Link>
+      <h1 className="break-words text-2xl font-semibold">{name}</h1>
+      <p className="mt-2 break-words text-sm leading-relaxed text-text-muted">{address}</p>
 
-      <div className="mt-3 flex flex-wrap gap-3 text-sm">
-        <a href={`tel:${branch.phone}`} className="rounded-chip bg-bg-soft px-3 py-1.5 font-medium text-brand-red">
-          {dict.branch.call}: {branch.phone}
+      <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+        <a href="#showtimes" className="inline-flex min-h-11 items-center rounded-chip bg-brand-gradient px-4 py-2 font-semibold text-white">
+          {dict.movie.showtimes} <span aria-hidden="true" className="ml-2">&darr;</span>
         </a>
-        <span className="rounded-chip bg-bg-soft px-3 py-1.5 text-text-muted">
-          {dict.branch.openingHours}: {branch.openingHours}
-        </span>
+        {branch.phone && (
+          <a href={`tel:${branch.phone}`} className="inline-flex min-h-11 items-center rounded-chip bg-bg-soft px-3 py-2 font-medium text-brand-red">
+            {dict.branch.call}: {branch.phone}
+          </a>
+        )}
+        {branch.openingHours && (
+          <span className="rounded-chip bg-bg-soft px-3 py-2 text-text-muted">
+            {dict.branch.openingHours}: {branch.openingHours}
+          </span>
+        )}
       </div>
 
       {branch.facilities.length > 0 && (
@@ -87,7 +103,7 @@ export default async function BranchDetailPage({
 
       {mapUrl && (
         <div className="mt-4 overflow-hidden rounded-card">
-          <iframe src={mapUrl} className="h-56 w-full border-0" loading="lazy" title="Map" />
+          <iframe src={mapUrl} className="h-56 w-full border-0" loading="lazy" title={locale === "mm" ? `${name} တည်နေရာပြမြေပုံ` : `Location of ${name}`} />
         </div>
       )}
       {directionsUrl && (
@@ -95,33 +111,43 @@ export default async function BranchDetailPage({
           href={directionsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-2 inline-block rounded-chip bg-brand-gradient px-4 py-2 text-sm font-medium text-white"
+          className="mt-3 inline-flex min-h-11 items-center rounded-chip bg-bg-soft px-4 py-2 text-sm font-medium text-brand-red hover:underline"
         >
           {dict.branch.getDirections}
+          <span className="sr-only">{locale === "mm" ? " (စာမျက်နှာအသစ်တွင် ဖွင့်မည်)" : " (opens in a new tab)"}</span>
         </a>
       )}
 
-      <div className="mt-8 border-t border-black/10 pt-6 dark:border-white/10">
-        <h2 className="mb-3 font-semibold">{dict.movie.showtimes}</h2>
+      <section id="showtimes" aria-labelledby="showtimes-heading" className="mt-8 scroll-mt-24 border-t border-black/10 pt-6 dark:border-white/10">
+        <h2 id="showtimes-heading" className="text-xl font-semibold">{dict.movie.showtimes}</h2>
+        <p className="mb-4 mt-2 text-sm text-text-muted">{locale === "mm" ? "ရက်စွဲကို ရွေးပြီး ထိုင်ခုံရွေးရန် ပြသချိန်တစ်ခုကို ရွေးပါ။" : "Pick a date, then choose a showtime to select your seats."}</p>
         <div className="mb-4">
-          <DateChips base={`/cinemas/${slug}`} otherParams={{}} selectedDate={selectedDate} />
+          <DateChips base={`/cinemas/${slug}`} otherParams={{}} selectedDate={selectedDate} locale={locale} />
         </div>
 
         {grouped.size === 0 ? (
-          <p className="text-sm text-text-muted">No showtimes on this date.</p>
+          <div className="rounded-card bg-bg-soft p-5">
+            <p className="font-medium">{locale === "mm" ? "ဤရက်အတွက် ပြသချိန်များ မရှိပါ။" : "No showtimes for this date."}</p>
+            <p className="mt-2 text-sm text-text-muted">{locale === "mm" ? "အခြားရက်ကို ရွေးပါ သို့မဟုတ် အခြားရုပ်ရှင်ရုံများကို ကြည့်ရှုပါ။" : "Try another date above, or explore our other cinemas."}</p>
+            <Link href="/cinemas" className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-brand-red hover:underline">
+              {dict.nav.cinemas} <span aria-hidden="true" className="ml-2">&rarr;</span>
+            </Link>
+          </div>
         ) : (
           <div className="space-y-6">
             {Array.from(grouped.values()).map((group) => (
-              <div key={group.slug}>
-                <Link href={`/movies/${group.slug}`} className="mb-2 block font-medium hover:underline">
-                  {group.title}
-                </Link>
-                <TimeChips showtimes={group.showtimes} />
+              <div key={group.slug} className="rounded-card border border-black/10 p-4 dark:border-white/10">
+                <h3 className="mb-3 font-semibold">
+                  <Link href={`/movies/${group.slug}?branch=${slug}&date=${selectedDate}`} className="inline-flex min-h-11 max-w-full items-center gap-2 hover:text-brand-red hover:underline">
+                    <span className="min-w-0 break-words">{group.title}</span> <span aria-hidden="true" className="shrink-0 text-sm text-text-muted">&rarr;</span>
+                  </Link>
+                </h3>
+                <TimeChips showtimes={group.showtimes} locale={locale} />
               </div>
             ))}
           </div>
         )}
-      </div>
+      </section>
 
       {branch.halls.length > 0 && (
         <div className="mt-8 border-t border-black/10 pt-6 dark:border-white/10">
@@ -138,9 +164,9 @@ export default async function BranchDetailPage({
 
       {branch.photos.length > 0 && (
         <div className="mt-8 grid grid-cols-3 gap-2">
-          {branch.photos.map((photo) => (
+          {branch.photos.map((photo, index) => (
             <div key={photo} className="relative aspect-square overflow-hidden rounded-chip">
-              <Image src={photo} alt={name} fill className="object-cover" sizes="120px" />
+              <Image src={photo} alt={locale === "mm" ? `${name} — ဓာတ်ပုံ ${index + 1}` : `${name} — photo ${index + 1}`} fill className="object-cover" sizes="(max-width: 768px) 33vw, 240px" />
             </div>
           ))}
         </div>

@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import argon2 from "argon2";
 import { prisma } from "@/lib/db";
 import { signupSchema } from "@/lib/validations/auth";
 import { normalizeEmail } from "@/lib/utils";
 import { rateLimit, RATE_LIMITS, clientIp } from "@/lib/rate-limit";
-import { generateSecureToken } from "@/lib/crypto";
-import { sendVerificationEmail } from "@/lib/email";
-import { env } from "@/lib/env";
+
+function registrationConflict() {
+  return NextResponse.json(
+    { error: "Unable to create an account with those details. Please sign in or reset your password." },
+    { status: 409 },
+  );
+}
 
 export async function POST(req: Request) {
   const ip = clientIp(req);
@@ -24,32 +29,30 @@ export async function POST(req: Request) {
   const email = normalizeEmail(parsed.data.email);
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    // Don't reveal whether the account exists; respond identically to success.
-    return NextResponse.json({ ok: true });
+    // Only a newly created account is a successful signup. The client signs
+    // it in next, so never report success for an existing account.
+    return registrationConflict();
   }
 
   const passwordHash = await argon2.hash(parsed.data.password);
-  const user = await prisma.user.create({
-    data: {
-      email,
-      name: parsed.data.name,
-      phone: parsed.data.phone || null,
-      passwordHash,
-    },
-  });
-
-  const token = generateSecureToken();
-  await prisma.verificationToken.create({
-    data: {
-      identifier: user.email,
-      token,
-      type: "EMAIL_VERIFY",
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    },
-  });
-
-  const verifyUrl = `${env.APP_URL}/api/auth/verify-email?token=${token}&email=${encodeURIComponent(user.email)}`;
-  await sendVerificationEmail(user.email, verifyUrl);
+  try {
+    await prisma.user.create({
+      data: {
+        email,
+        name: parsed.data.name,
+        phone: parsed.data.phone || null,
+        passwordHash,
+        emailVerified: new Date(),
+        isDisabled: false,
+      },
+    });
+  } catch (error) {
+    // Two simultaneous submissions must not turn an existing email into a 500.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return registrationConflict();
+    }
+    throw error;
+  }
 
   return NextResponse.json({ ok: true });
 }

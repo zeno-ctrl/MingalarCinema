@@ -5,12 +5,16 @@ const FROM = process.env.EMAIL_FROM || "Mingalar Cinema <no-reply@mingalarcinema
 
 async function send(to: string, subject: string, html: string) {
   if (!resend) {
-    // Dev fallback: log instead of sending so the flow is testable without
-    // an API key. Never do this in production (guarded by RESEND_API_KEY presence).
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Email delivery is not configured.");
+    }
+    // Local development only: use the server console to complete email flows.
     console.log(`\n[email:dev] to=${to} subject="${subject}"\n${html}\n`);
     return;
   }
-  await resend.emails.send({ from: FROM, to, subject, html });
+  const { error } = await resend.emails.send({ from: FROM, to, subject, html });
+  // Resend returns API failures as data rather than throwing them.
+  if (error) throw new Error("Email delivery failed. Please try again later.");
 }
 
 function layout(title: string, bodyHtml: string) {

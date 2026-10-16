@@ -63,17 +63,10 @@ export async function requirePageRole(minimum: Role) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?callbackUrl=/admin");
   if (!hasRole(user.role, minimum)) redirect("/");
-  if (!user.twoFactorEnabled) redirect("/admin/setup-2fa");
   return user;
 }
 
-/**
- * Cashier dashboard guard. Deliberately doesn't require 2FA like
- * requirePageRole() does — that flow redirects to /admin/setup-2fa, which is
- * gated to ADMIN/SUPER_ADMIN only, so a plain CASHIER account would get
- * bounced back out. Cashiers can only sell tickets for cash, not touch
- * anything else in /admin, so the lower friction is an acceptable trade-off.
- */
+/** Cashier dashboard guard, using the same live session and role checks. */
 export async function requireCashierPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?callbackUrl=/cashier");

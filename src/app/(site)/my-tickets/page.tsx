@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth-helpers";
+import { requirePageUser } from "@/lib/auth-helpers";
 import { formatMMK } from "@/lib/utils";
 
 export const metadata = { title: "My Tickets - Mingalar Cinema" };
@@ -11,9 +11,9 @@ type BookingWithDetails = Prisma.BookingGetPayload<{
 }>;
 
 export default async function MyTicketsPage() {
-  const user = await getCurrentUser();
+  const user = await requirePageUser("/my-tickets");
   const bookings = await prisma.booking.findMany({
-    where: { userId: user!.id, status: { in: ["PENDING", "PAID", "CHECKED_IN"] } },
+    where: { userId: user.id, status: { in: ["PENDING", "PAID", "CHECKED_IN"] } },
     include: { showtime: { include: { movie: true, branch: true, hall: true } }, seats: true },
     orderBy: { showtime: { startsAt: "desc" } },
   });
@@ -27,6 +27,11 @@ export default async function MyTicketsPage() {
       <h1 className="mb-4 text-2xl font-semibold">My Tickets</h1>
 
       <TicketSection title="Upcoming" bookings={upcoming} emptyText="No upcoming bookings yet." />
+      {upcoming.length === 0 && (
+        <Link href="/movies" className="mt-4 inline-flex min-h-11 items-center rounded-chip bg-brand-gradient px-5 py-2 text-sm font-medium text-white">
+          Find a movie
+        </Link>
+      )}
       <div className="mt-8">
         <TicketSection title="Past" bookings={past} emptyText="No past bookings." />
       </div>
@@ -56,15 +61,17 @@ function TicketSection({
               href={`/my-tickets/${b.reference}`}
               className="block rounded-card bg-bg-soft p-4 shadow-card transition-shadow hover:shadow-card-hover"
             >
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium">{b.showtime.movie.title}</h3>
-                <span className="text-xs font-medium text-text-muted">{b.status}</span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="min-w-0 break-words font-medium">{b.showtime.movie.title}</h3>
+                <span className="rounded bg-bg px-2 py-1 text-xs font-medium text-text-muted">
+                  {b.status === "PENDING" ? "Payment pending" : b.status === "PAID" ? "Confirmed" : "Checked in"}
+                </span>
               </div>
               <p className="mt-1 text-sm text-text-muted">
                 {b.showtime.branch.nameEn} • {b.showtime.hall.name}
               </p>
               <p className="text-sm text-text-muted">
-                {b.showtime.startsAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
+                {b.showtime.startsAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Yangon" })}
               </p>
               <p className="mt-1 text-sm">
                 {b.seats.length} seat{b.seats.length !== 1 ? "s" : ""} • {formatMMK(b.total)}

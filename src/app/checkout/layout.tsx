@@ -10,7 +10,7 @@ export default function CheckoutLayout({ children }: { children: React.ReactNode
           </Link>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-2xl flex-1 pb-28">{children}</main>
+      <main className="mx-auto w-full min-w-0 max-w-2xl flex-1 pb-[calc(9rem+env(safe-area-inset-bottom))]">{children}</main>
     </div>
   );
 }

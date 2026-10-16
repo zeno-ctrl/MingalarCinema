@@ -6,15 +6,13 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import argon2 from "argon2";
 import { prisma } from "@/lib/db";
 import { normalizeEmail } from "@/lib/utils";
-import { verifyTotp } from "@/lib/twofactor";
-import { decryptSecret } from "@/lib/crypto";
 import { rateLimit, RATE_LIMITS, clientIpFromHeaderRecord } from "@/lib/rate-limit";
 
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCK_DURATION_MS = 15 * 60 * 1000;
 
 // Generic message on purpose: never reveal whether the email exists,
-// whether the password or the OTP was the wrong part.
+// or whether the password was wrong.
 const INVALID_CREDENTIALS = "INVALID_CREDENTIALS";
 
 export const authOptions: NextAuthOptions = {
@@ -50,7 +48,6 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
         loginCode: { label: "Login code", type: "text" },
-        otp: { label: "One-time code", type: "text" },
       },
       async authorize(credentials, req) {
         if (!credentials?.email || (!credentials?.password && !credentials?.loginCode)) {
@@ -79,6 +76,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("ACCOUNT_LOCKED");
         }
 
+        let loginTokenId: string | undefined;
         if (credentials.loginCode) {
           // Per-account throttle: a 6-digit code is brute-forceable within
           // its 10-minute validity window without this.
@@ -90,11 +88,11 @@ export const authOptions: NextAuthOptions = {
           const token = await prisma.verificationToken.findFirst({
             where: { identifier: email, token: credentials.loginCode, type: "LOGIN_CODE" },
           });
-          if (!token || token.expires < new Date()) {
+          if (!token || token.expires <= new Date()) {
             throw new Error(INVALID_CREDENTIALS);
           }
-          // One-time use: delete on successful match so the code can't be replayed.
-          await prisma.verificationToken.delete({ where: { id: token.id } }).catch(() => {});
+          // Consume the code atomically with the successful login below.
+          loginTokenId = token.id;
         } else {
           if (!user.passwordHash) {
             throw new Error(INVALID_CREDENTIALS);
@@ -114,29 +112,23 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
-        if (user.twoFactorEnabled) {
-          if (!credentials.otp) {
-            throw new Error("2FA_REQUIRED");
+        await prisma.$transaction(async (tx) => {
+          if (loginTokenId) {
+            const consumed = await tx.verificationToken.deleteMany({
+              where: { id: loginTokenId, expires: { gt: new Date() } },
+            });
+            // A simultaneous login may already have used the same code.
+            if (consumed.count !== 1) throw new Error(INVALID_CREDENTIALS);
           }
-
-          // A 6-digit TOTP has only 10^6 possibilities; without a per-user
-          // throttle here it would be brute-forceable within its 30s
-          // validity window despite the account-level password lockout.
-          const otpCheck = await rateLimit(`otp:${user.id}`, RATE_LIMITS.otp);
-          if (!otpCheck.success) {
-            throw new Error("ACCOUNT_LOCKED");
-          }
-
-          const secret = decryptSecret(user.twoFactorSecret!);
-          const otpValid = verifyTotp(credentials.otp, secret);
-          if (!otpValid) {
-            throw new Error("INVALID_2FA");
-          }
-        }
-
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { failedLoginCount: 0, lockedUntil: null },
+          await tx.user.update({
+            where: { id: user.id },
+            data: {
+              failedLoginCount: 0,
+              lockedUntil: null,
+              // An emailed code also proves ownership of the address.
+              ...(loginTokenId && !user.emailVerified ? { emailVerified: new Date() } : {}),
+            },
+          });
         });
 
         return {

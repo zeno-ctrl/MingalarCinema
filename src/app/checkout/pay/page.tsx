@@ -4,6 +4,7 @@ import { requirePageUser, hasRole } from "@/lib/auth-helpers";
 import { BookingProgressBar } from "@/components/booking/BookingProgressBar";
 import { PayForm } from "@/components/booking/PayForm";
 import { formatMMK } from "@/lib/utils";
+import { CINEMA_TIME_ZONE } from "@/lib/cinema-time";
 
 export const metadata = { title: "Payment - Mingalar Cinema" };
 
@@ -47,7 +48,7 @@ export default async function PayPage({
         <h1 className="text-lg font-semibold">{showtime.movie.title}</h1>
         <p className="text-sm text-text-muted">
           {showtime.branch.nameEn} • {showtime.hall.name} •{" "}
-          {showtime.startsAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
+          {showtime.startsAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: CINEMA_TIME_ZONE })}
         </p>
 
         <div className="mt-4 rounded-card bg-bg-soft p-4">

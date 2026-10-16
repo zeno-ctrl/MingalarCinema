@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth-helpers";
+import { requirePageUser } from "@/lib/auth-helpers";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
 import { LogoutAllButton } from "@/components/profile/LogoutAllButton";
@@ -8,8 +8,8 @@ import type { Locale } from "@/lib/i18n/config";
 export const metadata = { title: "Profile - Mingalar Cinema" };
 
 export default async function ProfilePage() {
-  const sessionUser = await getCurrentUser();
-  const user = await prisma.user.findUniqueOrThrow({ where: { id: sessionUser!.id } });
+  const sessionUser = await requirePageUser("/profile");
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: sessionUser.id } });
 
   return (
     <div className="mx-auto max-w-lg space-y-8 px-4 py-6">

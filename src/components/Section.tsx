@@ -12,16 +12,16 @@ export function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="py-6">
+    <section aria-label={title} className="py-6">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4">
         <h2 className="text-lg font-semibold">{title}</h2>
         {seeAllHref && (
-          <Link href={seeAllHref} className="text-sm font-medium text-brand-red hover:underline">
+          <Link href={seeAllHref} aria-label={`${seeAllLabel}: ${title}`} className="inline-flex min-h-11 items-center text-sm font-medium text-brand-red hover:underline">
             {seeAllLabel}
           </Link>
         )}
       </div>
-      <div className="mx-auto mt-3 flex max-w-6xl gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div tabIndex={0} role="region" aria-label={title} className="mx-auto mt-3 flex max-w-6xl snap-x snap-proximity gap-3 overflow-x-auto px-4 pb-3">
         {children}
       </div>
     </section>

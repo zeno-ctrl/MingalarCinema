@@ -13,7 +13,7 @@ code change.
 - **Framework:** Next.js 16 (App Router), React 19, TypeScript
 - **Styling:** Tailwind CSS, CSS variables for theming (light/dark)
 - **Database:** PostgreSQL + Prisma ORM
-- **Auth:** NextAuth (Credentials + Google), argon2 password hashing, TOTP 2FA
+- **Auth:** NextAuth (Credentials + Google/Apple), argon2 password hashing
 - **Validation:** Zod on every API route
 - **Payments:** Stripe (card) and KBZPay (QR/deep-link) behind a shared
   `PaymentProvider` interface, with a local mock adapter for development
@@ -31,7 +31,6 @@ src/
   app/
     (site)/             # customer-facing pages (home, movies, cinemas, profile, tickets)
     admin/(dashboard)/  # admin dashboard (movies, branches, halls, showtimes, ...)
-    admin/setup-2fa/    # forced 2FA enrollment for admin accounts
     checkout/           # seat selection -> pay -> processing (booking flow)
     api/                # route handlers (customer, admin, checkout, webhooks)
   components/           # UI, booking, admin, layout, auth components
@@ -76,10 +75,8 @@ The seed script creates:
 - Five movies (three Now Showing, two Coming Soon) and a week of showtimes
 - A sample promotion and a `WELCOME20` promo code (20% off, min spend 6,000 Ks)
 
-Admin accounts require two-factor authentication. Logging in as the seeded
-super admin for the first time redirects to `/admin/setup-2fa`, where you scan
-the QR code with any TOTP authenticator app (Google Authenticator, Authy,
-1Password, etc.) and save the recovery codes shown afterward.
+Admin accounts sign in with their email and password. The dashboard checks
+the account role on every request; authenticator enrollment is not required.
 
 ## Environment variables
 
@@ -101,17 +98,16 @@ groups:
 ## Authentication & roles
 
 - **USER**: can browse everything without an account; needs one to book.
-  Sign-up asks for name, email, optional phone, and password; email
-  verification is required before first login (the link is emailed via
-  Resend, or logged to the console in development).
+  Sign-up asks for name, email, optional phone, and password, then signs the
+  new account in automatically. Email verification is not required. After
+  signing out, use the same email and password to sign in again.
 - **ADMIN / SUPER_ADMIN**: created only via invite (`Admin Invites` in the
   dashboard, super-admin only) — there is no public admin signup. Invite
-  links expire after 48 hours. Every admin account must enroll in TOTP 2FA
-  before it can do anything else in `/admin`.
+  links expire after 48 hours. Admins sign in without an authenticator step;
+  role checks continue to protect `/admin` and its API routes.
 - **CASHIER**: staff role for the `/cashier` ticket-counter dashboard (see
   **Reservations & cashier counter** below). A super-admin promotes an
-  existing account to `CASHIER` from `Users` in the admin dashboard. Unlike
-  ADMIN/SUPER_ADMIN, cashiers aren't required to enroll in 2FA.
+  existing account to `CASHIER` from `Users` in the admin dashboard. Staff sign in with their normal credentials.
 - Sessions are JWT-based (required by NextAuth's Credentials provider) but
   carry a `sessionVersion` that's checked against the database on every
   request, so disabling an account, changing its role, or using "Log out of
@@ -246,9 +242,8 @@ Covered:
 - Seat double-booking is prevented by a single atomic
   `INSERT ... ON CONFLICT` SQL statement, not an application-level
   check-then-write (see `src/lib/seat-lock.ts`).
-- Passwords are hashed with argon2; TOTP secrets are encrypted at rest
-  (AES-256-GCM, keyed off `NEXTAUTH_SECRET`); recovery codes are stored
-  hashed.
+- Passwords are hashed with argon2. Admin access requires an authorized role;
+  no authenticator enrollment or code is required.
 - Rate limiting covers login (both per-IP and the existing per-account
   lockout), OTP verification, signup, password reset, and payment/booking
   creation endpoints.

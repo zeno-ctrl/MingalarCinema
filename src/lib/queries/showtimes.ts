@@ -1,13 +1,8 @@
 import { prisma } from "@/lib/db";
-
-function dayRange(dateStr: string) {
-  const start = new Date(`${dateStr}T00:00:00`);
-  const end = new Date(`${dateStr}T23:59:59.999`);
-  return { start, end };
-}
+import { cinemaDate, cinemaDayRange } from "@/lib/cinema-time";
 
 export function getShowtimesForMovie(movieId: string, dateStr: string, branchId?: string) {
-  const { start, end } = dayRange(dateStr);
+  const { start, end } = cinemaDayRange(dateStr);
   return prisma.showtime.findMany({
     where: {
       movieId,
@@ -20,7 +15,7 @@ export function getShowtimesForMovie(movieId: string, dateStr: string, branchId?
 }
 
 export function getShowtimesForBranch(branchId: string, dateStr: string) {
-  const { start, end } = dayRange(dateStr);
+  const { start, end } = cinemaDayRange(dateStr);
   return prisma.showtime.findMany({
     where: { branchId, startsAt: { gte: start, lte: end } },
     include: { movie: true, hall: true },
@@ -36,7 +31,5 @@ export function getShowtimeById(id: string) {
 }
 
 export function todayStr(offsetDays = 0): string {
-  const d = new Date();
-  d.setDate(d.getDate() + offsetDays);
-  return d.toISOString().slice(0, 10);
+  return cinemaDate(offsetDays);
 }
