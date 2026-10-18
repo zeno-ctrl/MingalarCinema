@@ -1,7 +1,8 @@
-import { PrismaClient, MovieRating, MovieFormat, MovieStatus, SeatType, Role } from "@prisma/client";
+import { MovieRating, MovieFormat, MovieStatus, SeatType, Role } from "@prisma/client";
 import argon2 from "argon2";
-
-const prisma = new PrismaClient();
+import { prisma } from "../src/lib/db";
+import { cinemaDate } from "../src/lib/cinema-time";
+import { ensureAutomaticShowtimes } from "../src/lib/automatic-showtimes";
 
 function slugify(input: string): string {
   const slug = input
@@ -168,16 +169,11 @@ async function main() {
   // ---------------------------------------------------------------------
   // Halls per branch
   // ---------------------------------------------------------------------
-  const hallsByBranch: Record<string, { id: string; name: string }[]> = {};
   for (const branch of branches) {
     const existing = await prisma.hall.findMany({ where: { branchId: branch.id } });
-    if (existing.length > 0) {
-      hallsByBranch[branch.id] = existing;
-      continue;
-    }
-    const hall1 = await createHallWithSeats(branch.id, "Hall 1", 8, 12);
-    const hall2 = await createHallWithSeats(branch.id, "Hall 2 (Premium)", 6, 10);
-    hallsByBranch[branch.id] = [hall1, hall2];
+    if (existing.length > 0) continue;
+    await createHallWithSeats(branch.id, "Hall 1", 8, 12);
+    await createHallWithSeats(branch.id, "Hall 2 (Premium)", 6, 10);
   }
 
   // ---------------------------------------------------------------------
@@ -281,53 +277,19 @@ async function main() {
     },
   ];
 
-  const movies = [];
   for (const m of movieSeeds) {
-    const movie = await prisma.movie.upsert({
+    await prisma.movie.upsert({
       where: { slug: m.slug },
       create: { ...m, allBranches: true },
       update: {},
     });
-    movies.push(movie);
   }
 
   // ---------------------------------------------------------------------
-  // Showtimes: one week, now-showing movies, both halls per branch
+  // Fill the demo week without deleting schedules, holds or booked sessions.
   // ---------------------------------------------------------------------
-  const nowShowing = movies.filter((m) => m.status === MovieStatus.NOW_SHOWING);
-  const timesOfDay = [10, 13, 16, 19, 21.5];
-
-  await prisma.showtime.deleteMany({
-    where: { startsAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } },
-  });
-
-  for (const branch of branches) {
-    const halls = hallsByBranch[branch.id];
-    for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
-      for (const [movieIndex, movie] of nowShowing.entries()) {
-        const hall = halls[movieIndex % halls.length];
-        const timeHour = timesOfDay[(dayOffset + movieIndex) % timesOfDay.length];
-        const startsAt = new Date();
-        startsAt.setDate(startsAt.getDate() + dayOffset);
-        const hour = Math.floor(timeHour);
-        const minute = timeHour % 1 === 0.5 ? 30 : 0;
-        startsAt.setHours(hour, minute, 0, 0);
-        const endsAt = new Date(startsAt.getTime() + (movie.runtimeMin + 20) * 60 * 1000);
-
-        await prisma.showtime.create({
-          data: {
-            movieId: movie.id,
-            branchId: branch.id,
-            hallId: hall.id,
-            startsAt,
-            endsAt,
-            format: movie.formats[0],
-            priceStandard: 6000,
-            priceCouple: 16000,
-          },
-        });
-      }
-    }
+  for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+    await ensureAutomaticShowtimes(cinemaDate(dayOffset));
   }
 
   // ---------------------------------------------------------------------

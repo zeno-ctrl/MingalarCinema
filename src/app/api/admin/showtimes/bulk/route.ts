@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireApiRole } from "@/lib/auth-helpers";
 import { bulkShowtimeSchema } from "@/lib/validations/admin";
-import { hasOverlap, isMovieAllowedAtBranch } from "@/lib/showtime-overlap";
+import { hasOverlap, isMovieAllowedAtBranch, lockShowtimeInterval } from "@/lib/showtime-overlap";
 import { recordAudit } from "@/lib/audit";
 
 export async function POST(req: Request) {
@@ -63,26 +63,28 @@ export async function POST(req: Request) {
 
   let created = 0;
   let skipped = 0;
-  const createdIds: string[] = [];
 
   for (const c of candidates) {
-    if (await hasOverlap(hallId, c.startsAt, c.endsAt)) {
+    const showtime = await prisma.$transaction(async (tx) => {
+      await lockShowtimeInterval(tx, branchId, c.startsAt, c.endsAt);
+      if (await hasOverlap(hallId, c.startsAt, c.endsAt, undefined, tx)) return null;
+      return tx.showtime.create({
+        data: {
+          movieId,
+          branchId,
+          hallId,
+          startsAt: c.startsAt,
+          endsAt: c.endsAt,
+          format,
+          priceStandard,
+          priceCouple,
+        },
+      });
+    }, { maxWait: 10_000, timeout: 20_000 });
+    if (!showtime) {
       skipped++;
       continue;
     }
-    const showtime = await prisma.showtime.create({
-      data: {
-        movieId,
-        branchId,
-        hallId,
-        startsAt: c.startsAt,
-        endsAt: c.endsAt,
-        format,
-        priceStandard,
-        priceCouple,
-      },
-    });
-    createdIds.push(showtime.id);
     created++;
   }
 

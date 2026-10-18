@@ -110,6 +110,24 @@ export function SettingsForm({ initial, canEdit }: { initial: BrandSettings; can
         </select>
       </div>
 
+      <div className="rounded-card border border-black/10 p-4 dark:border-white/15">
+        <label htmlFor="automatic-showtimes" className="flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium">
+          <input
+            id="automatic-showtimes"
+            type="checkbox"
+            className="h-5 w-5 accent-brand-red"
+            disabled={!canEdit}
+            checked={values.automaticShowtimes}
+            onChange={(e) => setValues((v) => ({ ...v, automaticShowtimes: e.target.checked }))}
+            aria-describedby="automatic-showtimes-help"
+          />
+          Automatically generate demo showtimes
+        </label>
+        <p id="automatic-showtimes-help" className="mt-1 text-sm leading-relaxed text-text-muted">
+          Fill missing schedules with bookable sample times for the next seven days. Existing showtimes and bookings are preserved. Turn this off to manage real cinema schedules manually.
+        </p>
+      </div>
+
       {canEdit && (
         <Button type="submit" loading={loading}>
           Save Settings

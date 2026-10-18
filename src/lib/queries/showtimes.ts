@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db";
 import { cinemaDate, cinemaDayRange } from "@/lib/cinema-time";
+import { ensureAutomaticShowtimes } from "@/lib/automatic-showtimes";
 
-export function getShowtimesForMovie(movieId: string, dateStr: string, branchId?: string) {
+export async function getShowtimesForMovie(movieId: string, dateStr: string, branchId?: string) {
+  await ensureAutomaticShowtimes(dateStr, branchId);
   const { start, end } = cinemaDayRange(dateStr);
   return prisma.showtime.findMany({
     where: {
@@ -14,7 +16,8 @@ export function getShowtimesForMovie(movieId: string, dateStr: string, branchId?
   });
 }
 
-export function getShowtimesForBranch(branchId: string, dateStr: string) {
+export async function getShowtimesForBranch(branchId: string, dateStr: string) {
+  await ensureAutomaticShowtimes(dateStr, branchId);
   const { start, end } = cinemaDayRange(dateStr);
   return prisma.showtime.findMany({
     where: { branchId, startsAt: { gte: start, lte: end } },

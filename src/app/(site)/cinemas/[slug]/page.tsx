@@ -42,9 +42,25 @@ export default async function BranchDetailPage({
   const locale = isLocale(localeCookie) ? localeCookie : defaultLocale;
   const dict = getDictionary(locale);
 
-  const selectedDate = validDate(dateParam);
+  let selectedDate = validDate(dateParam);
+  const hasExplicitDate = dateParam === selectedDate;
   const showtimes = await getShowtimesForBranch(branch.id, selectedDate);
-  const withAvailability = await annotateAvailability(showtimes);
+  let withAvailability = await annotateAvailability(showtimes);
+  let showingNextAvailableDate = false;
+  const now = new Date();
+  if (!hasExplicitDate && !withAvailability.some((showtime) => showtime.startsAt > now && showtime.remaining > 0)) {
+    for (let offset = 1; offset < 7; offset++) {
+      const date = todayStr(offset);
+      const candidates = await annotateAvailability(await getShowtimesForBranch(branch.id, date));
+      if (candidates.some((showtime) => showtime.startsAt > now && showtime.remaining > 0)) {
+        selectedDate = date;
+        withAvailability = candidates;
+        showingNextAvailableDate = true;
+        break;
+      }
+    }
+  }
+  const includesSampleShowtimes = withAvailability.some((showtime) => showtime.id.startsWith("auto_"));
 
   const grouped = new Map<string, { title: string; slug: string; showtimes: typeof withAvailability }>();
   for (const s of withAvailability) {
@@ -123,6 +139,16 @@ export default async function BranchDetailPage({
         <p className="mb-4 mt-2 text-sm text-text-muted">{locale === "mm" ? "ရက်စွဲကို ရွေးပြီး ထိုင်ခုံရွေးရန် ပြသချိန်တစ်ခုကို ရွေးပါ။" : "Pick a date, then choose a showtime to select your seats."}</p>
         <div className="mb-4">
           <DateChips base={`/cinemas/${slug}`} otherParams={{}} selectedDate={selectedDate} locale={locale} />
+          {showingNextAvailableDate && (
+            <p className="mt-2 text-sm text-text-muted">
+              {locale === "mm" ? "ယနေ့အတွက် ကြိုတင်မှာယူနိုင်သည့် ပြသချိန် မကျန်တော့ပါ။ အနီးဆုံးရက်၏ ပြသချိန်များကို ဖော်ပြထားပါသည်။" : "No more available shows today. Showing the next available date."}
+            </p>
+          )}
+          {includesSampleShowtimes && (
+            <p className="mt-2 text-xs text-text-muted">
+              {locale === "mm" ? "နမူနာပြသချိန်များ ပါဝင်သည် · မြန်မာစံတော်ချိန်" : "Includes sample showtimes · Myanmar time"}
+            </p>
+          )}
         </div>
 
         {grouped.size === 0 ? (

@@ -63,12 +63,28 @@ export default async function MovieDetailPage({
     eligibleBranches.find((b) => b.slug === lastBranchSlug) ??
     eligibleBranches[0];
 
-  const selectedDate = validDate(dateParam);
+  let selectedDate = validDate(dateParam);
+  const hasExplicitDate = dateParam === selectedDate;
 
   const showtimes = selectedBranch
     ? await getShowtimesForMovie(movie.id, selectedDate, selectedBranch.id)
     : [];
-  const withAvailability = await annotateAvailability(showtimes);
+  let withAvailability = await annotateAvailability(showtimes);
+  let showingNextAvailableDate = false;
+  const now = new Date();
+  if (selectedBranch && !hasExplicitDate && !withAvailability.some((showtime) => showtime.startsAt > now && showtime.remaining > 0)) {
+    for (let offset = 1; offset < 7; offset++) {
+      const date = todayStr(offset);
+      const candidates = await annotateAvailability(await getShowtimesForMovie(movie.id, date, selectedBranch.id));
+      if (candidates.some((showtime) => showtime.startsAt > now && showtime.remaining > 0)) {
+        selectedDate = date;
+        withAvailability = candidates;
+        showingNextAvailableDate = true;
+        break;
+      }
+    }
+  }
+  const includesSampleShowtimes = withAvailability.some((showtime) => showtime.id.startsWith("auto_"));
 
   const title = movie.title;
   const synopsis = movie.synopsis;
@@ -197,6 +213,16 @@ export default async function MovieDetailPage({
                   selectedDate={selectedDate}
                   locale={locale}
                 />
+                {showingNextAvailableDate && (
+                  <p className="mt-2 text-sm text-text-muted">
+                    {locale === "mm" ? "ယနေ့အတွက် ကြိုတင်မှာယူနိုင်သည့် ပြသချိန် မကျန်တော့ပါ။ အနီးဆုံးရက်၏ ပြသချိန်များကို ဖော်ပြထားပါသည်။" : "No more available shows today. Showing the next available date."}
+                  </p>
+                )}
+                {includesSampleShowtimes && (
+                  <p className="mt-2 text-xs text-text-muted">
+                    {locale === "mm" ? "နမူနာပြသချိန်များ ပါဝင်သည် · မြန်မာစံတော်ချိန်" : "Includes sample showtimes · Myanmar time"}
+                  </p>
+                )}
               </div>
 
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-sm">

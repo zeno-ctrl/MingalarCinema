@@ -7,6 +7,7 @@ export type BrandSettings = {
   hotline: string;
   social: { facebook?: string; viber?: string; telegram?: string };
   defaultLanguage: "en" | "mm";
+  automaticShowtimes: boolean;
 };
 
 const DEFAULT_BRAND: BrandSettings = {
@@ -16,6 +17,7 @@ const DEFAULT_BRAND: BrandSettings = {
   hotline: "",
   social: {},
   defaultLanguage: "en",
+  automaticShowtimes: true,
 };
 
 export async function getBrandSettings(): Promise<BrandSettings> {

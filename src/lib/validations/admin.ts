@@ -117,4 +117,5 @@ export const siteSettingsSchema = z.object({
     telegram: z.string().trim().optional().or(z.literal("")),
   }),
   defaultLanguage: z.enum(["en", "mm"]),
+  automaticShowtimes: z.boolean().default(true),
 });

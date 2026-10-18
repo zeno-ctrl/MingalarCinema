@@ -187,6 +187,8 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 
 ## Running tests
 
+The demo keeps its seven-day schedule available automatically when movie or cinema pages are opened. Missing showtimes are saved in Myanmar time with real seat-selection links; existing sessions, bookings and holds are preserved. Super admins can disable **Automatically generate demo showtimes** in **Admin → Settings** when maintaining real cinema schedules. Coming-soon movies are scheduled only on or after their release date, and ended movies are excluded. The seed uses the same non-destructive scheduler.
+
 ```bash
 npm run db:seed   # tests assume seed data exists
 npm test

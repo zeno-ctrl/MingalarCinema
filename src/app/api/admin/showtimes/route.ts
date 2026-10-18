@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireApiRole } from "@/lib/auth-helpers";
 import { showtimeSchema } from "@/lib/validations/admin";
-import { hasOverlap, isMovieAllowedAtBranch, CLEANING_BUFFER_MIN } from "@/lib/showtime-overlap";
+import { hasOverlap, isMovieAllowedAtBranch, lockShowtimeInterval, CLEANING_BUFFER_MIN } from "@/lib/showtime-overlap";
 import { recordAudit } from "@/lib/audit";
 
 export async function GET(req: Request) {
@@ -45,13 +45,16 @@ export async function POST(req: Request) {
   }
 
   const endsAt = new Date(startsAt.getTime() + (movie.runtimeMin + CLEANING_BUFFER_MIN) * 60 * 1000);
-  if (await hasOverlap(hallId, startsAt, endsAt)) {
+  const showtime = await prisma.$transaction(async (tx) => {
+    await lockShowtimeInterval(tx, branchId, startsAt, endsAt);
+    if (await hasOverlap(hallId, startsAt, endsAt, undefined, tx)) return null;
+    return tx.showtime.create({
+      data: { movieId, branchId, hallId, startsAt, endsAt, format, priceStandard, priceCouple },
+    });
+  }, { maxWait: 10_000, timeout: 20_000 });
+  if (!showtime) {
     return NextResponse.json({ error: "This overlaps with another showtime already scheduled in that hall." }, { status: 400 });
   }
-
-  const showtime = await prisma.showtime.create({
-    data: { movieId, branchId, hallId, startsAt, endsAt, format, priceStandard, priceCouple },
-  });
 
   await recordAudit({ actorId: user.id, action: "showtime.create", entityType: "Showtime", entityId: showtime.id, after: showtime });
   return NextResponse.json({ showtime });
