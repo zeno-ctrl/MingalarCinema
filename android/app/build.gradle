@@ -1,0 +1,30 @@
+plugins { id 'com.android.application' }
+
+def website = providers.gradleProperty('websiteUrl').orElse('https://mingalar-cinema.vercel.app').get()
+def uri = new URI(website)
+if (!(uri.scheme in ['https', 'http']) || !uri.host || uri.userInfo || uri.fragment || uri.query) {
+    throw new GradleException('websiteUrl must be an HTTP(S) website URL without credentials, query or fragment')
+}
+android {
+    namespace 'com.mingalarcinema.app'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.mingalarcinema.app'
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName '1.0'
+        buildConfigField 'String', 'WEBSITE_URL', groovy.json.JsonOutput.toJson(website)
+    }
+    buildFeatures { buildConfig true }
+    buildTypes { release { minifyEnabled false } }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+tasks.configureEach {
+    if (name == 'preReleaseBuild') {
+        doFirst {
+            if (uri.scheme != 'https') throw new GradleException('Release requires -PwebsiteUrl=https://your-real-domain')
+        }
+    }
+}
+dependencies { testImplementation 'junit:junit:4.13.2' }

@@ -42,6 +42,14 @@ const nextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      {
+        source: "/downloads/mingalar-cinema.apk",
+        headers: [
+          { key: "Content-Type", value: "application/vnd.android.package-archive" },
+          { key: "Content-Disposition", value: 'attachment; filename="MingalarCinema.apk"' },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
     ];
   },
 };

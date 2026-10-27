@@ -95,6 +95,25 @@ groups:
 | KBZPay | `KBZPAY_MERCHANT_ID`, `KBZPAY_APP_ID`, `KBZPAY_MERCHANT_KEY`, `KBZPAY_BASE_URL` | See **Payments** below |
 | Rate limiting | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Optional — falls back to an in-memory limiter (fine for a single dev server, **not** safe across multiple serverless instances in production) |
 
+## Install on phones, tablets, and computers
+
+The `/download` page explains how to install the web app on Android, iPhone/iPad,
+and supported desktop browsers. The web manifest is served at
+`/manifest.webmanifest`; iOS home-screen metadata and 192/512px app icons are
+included. Browser installation options vary by OS and browser. The normal website
+remains available when installation is unsupported, and internet access is
+required for bookings and payments. This implementation does not register a
+service worker or cache customer pages, sessions, tickets, or payments offline.
+
+The Android test APK is served from
+`public/downloads/mingalar-cinema.apk` at `/downloads/mingalar-cinema.apk`.
+Build it using [the Android instructions](android/README.md), copy the resulting
+APK to that public path, and deploy the updated website before sharing the HTTPS
+download URL. A local workspace path is not a public download link. iPhones,
+iPads, Windows, and macOS cannot install an Android APK; use the web app instead.
+See `android/README.md` for native feature and sign-in limitations. Browser and
+native-app sessions are separate.
+
 ## Authentication & roles
 
 - **USER**: can browse everything without an account; needs one to book.

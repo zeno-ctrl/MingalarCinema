@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { Inter, Noto_Sans_Myanmar } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import { cookies } from "next/headers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -9,15 +9,36 @@ import type { ThemePref } from "@/lib/theme/provider";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const notoMm = Noto_Sans_Myanmar({
-  subsets: ["myanmar"],
-  weight: ["400", "500", "600", "700"],
+const inter = localFont({
+  src: "./fonts/inter/Inter-variable.ttf",
+  weight: "100 900",
+  style: "normal",
+  variable: "--font-inter",
+  display: "swap",
+});
+const notoMm = localFont({
+  src: "./fonts/noto-sans-myanmar/NotoSansMyanmar-variable.ttf",
+  weight: "100 900",
+  style: "normal",
   variable: "--font-noto-mm",
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#be1e2d",
+};
+
 export const metadata: Metadata = {
+  applicationName: "Mingalar Cinema",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Mingalar Cinema",
+    statusBarStyle: "default",
+  },
   title: "Mingalar Cinema - Book Movie Tickets in Myanmar",
   description:
     "Browse now-showing and coming-soon movies, pick your seats, and book tickets online across Mingalar Cinema branches in Myanmar.",

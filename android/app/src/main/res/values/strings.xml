@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Mingalar Cinema</string>
+    <string name="connection_error">Unable to load Mingalar Cinema.\nCheck your connection and try again.</string>
+    <string name="retry">Try again</string>
+    <string name="no_file_picker">No file picker is installed</string>
+    <string name="no_link_handler">No app is installed to open this link</string>
+    <string name="open_browser">Open in browser</string>
+    <string name="webview_unavailable">Update Android System WebView or Chrome to use Mingalar Cinema. You can also open the website in your browser.</string>
+    <string name="update_webview">Update WebView</string>
+</resources>
