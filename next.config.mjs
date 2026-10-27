@@ -36,6 +36,9 @@ const nextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
+  async redirects() {
+    return [{ source: "/download", destination: "/", permanent: false }];
+  },
   async headers() {
     return [
       {

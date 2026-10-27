@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { cookies } from "next/headers";
 import { getServerSession } from "next-auth";
@@ -24,21 +24,7 @@ const notoMm = localFont({
   display: "swap",
 });
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  viewportFit: "cover",
-  themeColor: "#be1e2d",
-};
-
 export const metadata: Metadata = {
-  applicationName: "Mingalar Cinema",
-  manifest: "/manifest.webmanifest",
-  appleWebApp: {
-    capable: true,
-    title: "Mingalar Cinema",
-    statusBarStyle: "default",
-  },
   title: "Mingalar Cinema - Book Movie Tickets in Myanmar",
   description:
     "Browse now-showing and coming-soon movies, pick your seats, and book tickets online across Mingalar Cinema branches in Myanmar.",
